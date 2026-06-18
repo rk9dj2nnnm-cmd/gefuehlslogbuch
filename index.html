@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gefühlslogbuch</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="sky" id="sky">
+    <div class="sky-content">
+      <div class="sky-date" id="todayLabel"></div>
+      <div class="sky-sub">Wie fühlt sich dein Moment gerade an?</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Neuer Eintrag</h2>
+
+    <label class="field-label">Welche Gefühle sind gerade da? (mehrere möglich)</label>
+    <div class="mood-groups" id="moodGroups"></div>
+
+    <div class="intensity-row">
+      <label class="field-label">Wie stark insgesamt?</label>
+      <input type="range" id="intensity" min="1" max="5" value="3" />
+      <div class="intensity-labels"><span>kaum spürbar</span><span>überwältigend</span></div>
+    </div>
+
+    <label class="field-label" for="entryText">Was ist passiert? Was geht dir durch den Kopf?</label>
+    <textarea id="entryText" placeholder="Schreib einfach los, so wie es kommt …"></textarea>
+
+    <div class="btn-row">
+      <button class="primary" id="saveBtn" disabled>Eintrag speichern</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Emotionswetter</h2>
+    <div class="strip" id="strip"></div>
+    <div id="entriesList"></div>
+  </div>
+
+  <footer class="note">
+    Dieses Logbuch hilft dir, eigene Gefühle besser zu verstehen. Es ersetzt kein Gespräch mit einer Person, der du vertraust, oder mit einer Fachperson.
+  </footer>
+
+</div>
+
+<script src="moods.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
