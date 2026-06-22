@@ -37,6 +37,8 @@
     <label class="field-label" for="entryText">Was ist passiert? Was geht dir durch den Kopf?</label>
     <textarea id="entryText" placeholder="Schreib einfach los, so wie es kommt …"></textarea>
 
+    <p class="privacy-hint">🔒 Deine Einträge sind privat – andere Nutzer haben nie Zugriff darauf. Für die KI-Reflexion wird der Text einmalig an Google Gemini gesendet, um eine Antwort zu erhalten.</p>
+
     <div class="btn-row">
       <button class="primary" id="saveBtn" disabled>Eintrag speichern</button>
     </div>
@@ -45,6 +47,13 @@
   <div class="card">
     <h2 class="section-title">Emotionswetter</h2>
     <div class="strip" id="strip"></div>
+
+    <div class="btn-row">
+      <button class="ghost" id="overviewBtn" disabled>✨ Gesamtreflexion über alle Einträge</button>
+    </div>
+    <p class="hint-msg" id="overviewHint">Ab 3 Einträgen verfügbar – schau dir an, ob sich Muster über die Zeit zeigen.</p>
+    <div class="reflection-box" id="reflection-overview"></div>
+
     <div id="entriesList"></div>
   </div>
 

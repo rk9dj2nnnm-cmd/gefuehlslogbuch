@@ -4,19 +4,44 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const { entry, history, message } = req.body || {};
+  const { entry, entries, history, message } = req.body || {};
 
   let contents;
 
   if (Array.isArray(history) && history.length > 0) {
-    // Fortsetzung eines bestehenden Gesprächs
+    // Fortsetzung eines bestehenden Gesprächs (egal ob Einzel- oder Gesamtreflexion)
     if (!message || typeof message !== 'string') {
       res.status(400).json({ error: 'Nachricht fehlt.' });
       return;
     }
     contents = [...history, { role: 'user', parts: [{ text: message }] }];
+  } else if (Array.isArray(entries) && entries.length > 0) {
+    // Gesamtreflexion über mehrere Einträge hinweg
+    const list = entries
+      .slice(-30)
+      .map((e, i) => {
+        const moodLabels = Array.isArray(e.moods) ? e.moods.map((m) => m.label).join(', ') : '';
+        const date = e.created_at
+          ? new Date(e.created_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+          : '?';
+        return `${i + 1}. ${date} – Gefühle: ${moodLabels || 'keine Angabe'}, Intensität: ${e.intensity || '?'}/5: "${e.text}"`;
+      })
+      .join('\n');
+
+    const prompt = `Du bist eine einfühlsame, ruhige Reflexionsbegleitung in einem Gefühlslogbuch.
+Hier sind die Einträge eines Menschen, älteste zuerst:
+
+${list}
+
+Schau dir das Gesamtbild an: Gibt es wiederkehrende Gefühle, Muster oder Veränderungen
+über die Zeit? Schreibe eine kurze, warme Beobachtung auf Deutsch (4-6 Sätze) dazu.
+Keine Diagnosen und keine Ratschläge wie ein Therapeut, sondern spiegle einfühlsam
+zurück, was du siehst. Stelle am Ende eine offene, nicht wertende Rückfrage. Falls
+sich daraus ein Gespräch entwickelt, bleib in dieser Rolle: zuhören, einfühlsam
+spiegeln, behutsam nachfragen.`;
+    contents = [{ role: 'user', parts: [{ text: prompt }] }];
   } else {
-    // Erste Reflexion zu einem Eintrag
+    // Erste Reflexion zu einem einzelnen Eintrag
     if (!entry || typeof entry.text !== 'string') {
       res.status(400).json({ error: 'Eintrag fehlt.' });
       return;

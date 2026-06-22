@@ -43,7 +43,7 @@ function updateSky() {
   });
 }
 
-/* ---------- Mood-Auswahl (Grundgefühle + aufklappbare Unterkategorien) ---------- */
+/* ---------- Mood-Auswahl (Grundgefühle klappen auf, Unterkategorien sind wählbar) ---------- */
 function renderMoodGroups() {
   const el = $('moodGroups');
   el.innerHTML = '';
@@ -52,24 +52,28 @@ function renderMoodGroups() {
     const row = document.createElement('div');
     row.className = 'mood-group-row';
 
+    const expanded = expandedGroups.has(group.key);
     const groupBtn = document.createElement('button');
-    groupBtn.className = 'mood-btn' + (selectedKeys.has(group.key) ? ' selected' : '');
+    groupBtn.className = 'mood-btn group' + (selectedKeys.has(group.key) ? ' selected' : '') + (expanded ? ' expanded' : '');
     groupBtn.style.setProperty('--mood-color', group.color);
-    groupBtn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}`;
-    groupBtn.addEventListener('click', () => toggleSelection(group.key));
-
-    const expandBtn = document.createElement('button');
-    expandBtn.className = 'expand-btn' + (expandedGroups.has(group.key) ? ' expanded' : '');
-    expandBtn.setAttribute('aria-label', 'Unterkategorien von ' + group.label + ' anzeigen');
-    expandBtn.textContent = '▾';
-    expandBtn.addEventListener('click', () => toggleExpanded(group.key));
+    groupBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    groupBtn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}<span class="chevron">▾</span>`;
+    groupBtn.addEventListener('click', () => toggleExpanded(group.key));
 
     row.appendChild(groupBtn);
-    row.appendChild(expandBtn);
     el.appendChild(row);
 
     const children = document.createElement('div');
-    children.className = 'mood-children' + (expandedGroups.has(group.key) ? ' open' : '');
+    children.className = 'mood-children' + (expanded ? ' open' : '');
+
+    // "Allgemein" entspricht der Auswahl des Grundgefühls selbst, ohne weiter zu spezifizieren.
+    const generalBtn = document.createElement('button');
+    generalBtn.className = 'mood-btn child general' + (selectedKeys.has(group.key) ? ' selected' : '');
+    generalBtn.style.setProperty('--mood-color', group.color);
+    generalBtn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label} – allgemein`;
+    generalBtn.addEventListener('click', () => toggleSelection(group.key));
+    children.appendChild(generalBtn);
+
     group.children.forEach(child => {
       const childBtn = document.createElement('button');
       childBtn.className = 'mood-btn child' + (selectedKeys.has(child.key) ? ' selected' : '');
@@ -83,15 +87,8 @@ function renderMoodGroups() {
 }
 
 function toggleSelection(key) {
-  if (selectedKeys.has(key)) {
-    selectedKeys.delete(key);
-  } else {
-    selectedKeys.add(key);
-    // Beim Auswählen eines Grundgefühls direkt die Unterkategorien aufklappen,
-    // man muss aber nicht weiter spezifizieren, wenn man nicht will.
-    const isGroup = MOODS.some(g => g.key === key);
-    if (isGroup) expandedGroups.add(key);
-  }
+  if (selectedKeys.has(key)) selectedKeys.delete(key);
+  else selectedKeys.add(key);
   renderMoodGroups();
   updateSky();
   updateButtons();
@@ -237,11 +234,36 @@ async function startReflection(entry) {
   }
 }
 
-async function continueReflection(entry, userMessage) {
-  const convo = conversations[entry.id];
+async function startOverviewReflection() {
+  conversations.overview = { messages: [], history: [], loading: true };
+  renderReflectionBox('overview');
+
+  try {
+    const res = await fetch('/api/reflect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        entries: entries.map((e) => ({ text: e.text, moods: e.moods, intensity: e.intensity, created_at: e.created_at }))
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Fehler');
+    conversations.overview.history = data.history;
+    conversations.overview.messages.push({ role: 'model', text: data.reply });
+  } catch (err) {
+    console.error(err);
+    conversations.overview.messages.push({ role: 'model', text: 'Gesamtreflexion konnte nicht geladen werden.' });
+  } finally {
+    conversations.overview.loading = false;
+    renderReflectionBox('overview');
+  }
+}
+
+async function continueReflection(entryId, userMessage) {
+  const convo = conversations[entryId];
   convo.messages.push({ role: 'user', text: userMessage });
   convo.loading = true;
-  renderReflectionBox(entry.id);
+  renderReflectionBox(entryId);
 
   try {
     const res = await fetch('/api/reflect', {
@@ -258,7 +280,7 @@ async function continueReflection(entry, userMessage) {
     convo.messages.push({ role: 'model', text: 'Antwort konnte nicht geladen werden.' });
   } finally {
     convo.loading = false;
-    renderReflectionBox(entry.id);
+    renderReflectionBox(entryId);
   }
 }
 
@@ -292,6 +314,8 @@ async function saveEntry() {
   resetDraft();
   renderStrip();
   renderEntries();
+  updateOverviewButton();
+  startReflection(data);
 }
 
 function resetDraft() {
@@ -304,6 +328,12 @@ function resetDraft() {
   updateButtons();
 }
 
+function updateOverviewButton() {
+  const ready = entries.length >= 3;
+  $('overviewBtn').disabled = !ready;
+  $('overviewHint').style.display = ready ? 'none' : '';
+}
+
 async function init() {
   $('todayLabel').textContent = todayLabel();
   createSkyBlobs();
@@ -311,11 +341,13 @@ async function init() {
   entries = await loadEntries();
   renderStrip();
   renderEntries();
+  updateOverviewButton();
 
   $('entryText').addEventListener('input', updateButtons);
   $('saveBtn').addEventListener('click', saveEntry);
+  $('overviewBtn').addEventListener('click', startOverviewReflection);
 
-  $('entriesList').addEventListener('click', (e) => {
+  weatherCard().addEventListener('click', (e) => {
     const reflectBtn = e.target.closest('.reflect-btn');
     if (reflectBtn) {
       const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
@@ -328,7 +360,7 @@ async function init() {
     }
   });
 
-  $('entriesList').addEventListener('keydown', (e) => {
+  weatherCard().addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.classList.contains('reflection-input')) {
       e.preventDefault();
       sendFollowUp(e.target.closest('.reflection-box'));
@@ -336,13 +368,16 @@ async function init() {
   });
 }
 
+function weatherCard() {
+  return $('entriesList').closest('.card');
+}
+
 function sendFollowUp(box) {
   const entryId = box.id.replace('reflection-', '');
-  const entry = entries.find((en) => en.id === entryId);
   const input = box.querySelector('.reflection-input');
   const text = input.value.trim();
   if (!text) return;
-  continueReflection(entry, text);
+  continueReflection(entryId, text);
 }
 
 window.authReady.then((user) => {
