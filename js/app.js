@@ -83,8 +83,15 @@ function renderMoodGroups() {
 }
 
 function toggleSelection(key) {
-  if (selectedKeys.has(key)) selectedKeys.delete(key);
-  else selectedKeys.add(key);
+  if (selectedKeys.has(key)) {
+    selectedKeys.delete(key);
+  } else {
+    selectedKeys.add(key);
+    // Beim Auswählen eines Grundgefühls direkt die Unterkategorien aufklappen,
+    // man muss aber nicht weiter spezifizieren, wenn man nicht will.
+    const isGroup = MOODS.some(g => g.key === key);
+    if (isGroup) expandedGroups.add(key);
+  }
   renderMoodGroups();
   updateSky();
   updateButtons();
@@ -170,36 +177,88 @@ function renderEntries() {
         <span class="entry-date">${formatDate(e.created_at)}</span>
       </div>
       <p class="entry-text">${escapeHtml(e.text)}</p>
-      <div class="btn-row">
+      <div class="reflection-box" id="reflection-${e.id}">
         <button class="ghost reflect-btn" data-id="${e.id}">✨ KI-Reflexion</button>
       </div>
-      <p class="reflection-text" id="reflection-${e.id}"></p>
     `;
     list.appendChild(card);
   });
+
+  // Laufende Reflexionsgespräche überleben den Neuaufbau der Liste (z.B. nach dem Speichern eines neuen Eintrags).
+  Object.keys(conversations).forEach((entryId) => renderReflectionBox(entryId));
 }
 
-/* ---------- KI-Reflexion (Gemini über eigene Vercel-Function) ---------- */
-async function requestReflection(entry, btn, resultEl) {
-  btn.disabled = true;
-  btn.textContent = 'Denkt nach …';
-  resultEl.textContent = '';
+/* ---------- KI-Reflexionsgespräch (Gemini über eigene Vercel-Function) ---------- */
+const conversations = {}; // entry.id -> { messages: [{role, text}], history: [...Gemini-Contents], loading }
+
+function renderReflectionBox(entryId) {
+  const box = $('reflection-' + entryId);
+  const convo = conversations[entryId];
+
+  if (!convo) {
+    box.innerHTML = `<button class="ghost reflect-btn" data-id="${entryId}">✨ KI-Reflexion</button>`;
+    return;
+  }
+
+  const messagesHtml = convo.messages
+    .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
+    .join('');
+  const loadingHtml = convo.loading ? '<p class="reflection-msg model loading">Denkt nach …</p>' : '';
+  const inputHtml = convo.loading
+    ? ''
+    : `<div class="reflection-input-row">
+         <input type="text" class="reflection-input" placeholder="Antworten …" />
+         <button class="ghost reflection-send">Senden</button>
+       </div>`;
+
+  box.innerHTML = messagesHtml + loadingHtml + inputHtml;
+}
+
+async function startReflection(entry) {
+  conversations[entry.id] = { messages: [], history: [], loading: true };
+  renderReflectionBox(entry.id);
 
   try {
     const res = await fetch('/api/reflect', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: entry.text, moods: entry.moods, intensity: entry.intensity })
+      body: JSON.stringify({ entry: { text: entry.text, moods: entry.moods, intensity: entry.intensity } })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Fehler');
-    resultEl.textContent = data.reflection;
+    conversations[entry.id].history = data.history;
+    conversations[entry.id].messages.push({ role: 'model', text: data.reply });
   } catch (err) {
     console.error(err);
-    resultEl.textContent = 'Reflexion konnte nicht geladen werden.';
+    conversations[entry.id].messages.push({ role: 'model', text: 'Reflexion konnte nicht geladen werden.' });
   } finally {
-    btn.disabled = false;
-    btn.textContent = '✨ KI-Reflexion';
+    conversations[entry.id].loading = false;
+    renderReflectionBox(entry.id);
+  }
+}
+
+async function continueReflection(entry, userMessage) {
+  const convo = conversations[entry.id];
+  convo.messages.push({ role: 'user', text: userMessage });
+  convo.loading = true;
+  renderReflectionBox(entry.id);
+
+  try {
+    const res = await fetch('/api/reflect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ history: convo.history, message: userMessage })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Fehler');
+    convo.history = data.history;
+    convo.messages.push({ role: 'model', text: data.reply });
+  } catch (err) {
+    console.error(err);
+    convo.messages.push({ role: 'model', text: 'Antwort konnte nicht geladen werden.' });
+  } finally {
+    convo.loading = false;
+    renderReflectionBox(entry.id);
   }
 }
 
@@ -257,12 +316,33 @@ async function init() {
   $('saveBtn').addEventListener('click', saveEntry);
 
   $('entriesList').addEventListener('click', (e) => {
-    const btn = e.target.closest('.reflect-btn');
-    if (!btn) return;
-    const entry = entries.find((en) => en.id === btn.dataset.id);
-    const resultEl = $('reflection-' + entry.id);
-    requestReflection(entry, btn, resultEl);
+    const reflectBtn = e.target.closest('.reflect-btn');
+    if (reflectBtn) {
+      const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
+      startReflection(entry);
+      return;
+    }
+    const sendBtn = e.target.closest('.reflection-send');
+    if (sendBtn) {
+      sendFollowUp(sendBtn.closest('.reflection-box'));
+    }
   });
+
+  $('entriesList').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.classList.contains('reflection-input')) {
+      e.preventDefault();
+      sendFollowUp(e.target.closest('.reflection-box'));
+    }
+  });
+}
+
+function sendFollowUp(box) {
+  const entryId = box.id.replace('reflection-', '');
+  const entry = entries.find((en) => en.id === entryId);
+  const input = box.querySelector('.reflection-input');
+  const text = input.value.trim();
+  if (!text) return;
+  continueReflection(entry, text);
 }
 
 window.authReady.then((user) => {

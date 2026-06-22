@@ -374,17 +374,41 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   margin: 0 0 4px;
 }
 
-.entry .btn-row { margin-top: 4px; }
+.reflection-box {
+  margin-top: 12px;
+}
 
-.reflection-text {
+.reflection-msg {
   font-family: var(--serif);
   font-size: 0.92rem;
-  font-style: italic;
-  color: var(--ink-soft);
   line-height: 1.55;
-  margin: 12px 0 0;
+  margin: 0 0 10px;
 }
-.reflection-text:empty { margin: 0; }
+.reflection-msg.model {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.reflection-msg.user {
+  color: var(--ink);
+  font-family: var(--sans);
+  font-style: normal;
+}
+.reflection-msg.loading {
+  color: var(--ink-faint);
+}
+
+.reflection-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.reflection-input-row input[type="text"] {
+  flex: 1;
+  padding: 10px 12px;
+}
+.reflection-send {
+  flex-shrink: 0;
+}
 
 footer.note {
   font-size: 0.76rem;

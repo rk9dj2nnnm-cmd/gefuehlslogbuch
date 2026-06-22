@@ -4,24 +4,38 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const { text, moods, intensity } = req.body || {};
-  if (!text || typeof text !== 'string') {
-    res.status(400).json({ error: 'Text fehlt.' });
-    return;
-  }
+  const { entry, history, message } = req.body || {};
 
-  const moodLabels = Array.isArray(moods) ? moods.map((m) => m.label).join(', ') : '';
+  let contents;
 
-  const prompt = `Du bist eine einfühlsame, ruhige Reflexionsbegleitung in einem Gefühlslogbuch.
+  if (Array.isArray(history) && history.length > 0) {
+    // Fortsetzung eines bestehenden Gesprächs
+    if (!message || typeof message !== 'string') {
+      res.status(400).json({ error: 'Nachricht fehlt.' });
+      return;
+    }
+    contents = [...history, { role: 'user', parts: [{ text: message }] }];
+  } else {
+    // Erste Reflexion zu einem Eintrag
+    if (!entry || typeof entry.text !== 'string') {
+      res.status(400).json({ error: 'Eintrag fehlt.' });
+      return;
+    }
+    const moodLabels = Array.isArray(entry.moods) ? entry.moods.map((m) => m.label).join(', ') : '';
+    const prompt = `Du bist eine einfühlsame, ruhige Reflexionsbegleitung in einem Gefühlslogbuch.
 Ein Mensch hat folgenden Eintrag geschrieben:
 
 Gefühle: ${moodLabels || 'keine Angabe'}
-Intensität: ${intensity || '?'}/5
-Text: "${text}"
+Intensität: ${entry.intensity || '?'}/5
+Text: "${entry.text}"
 
 Schreibe eine kurze, warme Reflexion auf Deutsch (3-5 Sätze). Stelle am Ende eine
 offene, nicht wertende Rückfrage. Gib keine Diagnosen und keine Ratschläge wie ein
-Therapeut, sondern spiegle einfühlsam zurück, was du liest.`;
+Therapeut, sondern spiegle einfühlsam zurück, was du liest. Falls sich daraus ein
+Gespräch entwickelt, bleib in dieser Rolle: zuhören, einfühlsam spiegeln, behutsam
+nachfragen.`;
+    contents = [{ role: 'user', parts: [{ text: prompt }] }];
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -35,7 +49,7 @@ Therapeut, sondern spiegle einfühlsam zurück, was du liest.`;
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        body: JSON.stringify({ contents })
       }
     );
 
@@ -47,8 +61,9 @@ Therapeut, sondern spiegle einfühlsam zurück, was du liest.`;
     }
 
     const data = await geminiResponse.json();
-    const reflection = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Keine Antwort erhalten.';
-    res.status(200).json({ reflection });
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Keine Antwort erhalten.';
+    const updatedHistory = [...contents, { role: 'model', parts: [{ text: reply }] }];
+    res.status(200).json({ reply, history: updatedHistory });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Serverfehler bei der Reflexion.' });
