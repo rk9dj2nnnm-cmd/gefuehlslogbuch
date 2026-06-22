@@ -44,11 +44,12 @@ function updateSky() {
   });
 }
 
-/* ---------- Mood-Auswahl (Hauptgefühle als Pills, Unterkategorien als Verfeinerung) ---------- */
+/* ---------- Mood-Auswahl (Hauptgefühle als Icon-Kreise, Unterkategorien als Verfeinerung) ---------- */
 const MAX_MAIN_MOODS = 3;
 
 function renderMoodGroups() {
   const mainEl = $('moodMainPills');
+  const captionEl = $('moodCaption');
   const refineEl = $('moodRefine');
   mainEl.innerHTML = '';
   refineEl.innerHTML = '';
@@ -59,15 +60,18 @@ function renderMoodGroups() {
   MOODS.forEach(group => {
     const isSelected = selectedKeys.has(group.key);
     const btn = document.createElement('button');
-    btn.className = 'mood-pill' + (isSelected ? ' selected' : '');
+    btn.className = 'mood-circle' + (isSelected ? ' selected' : '');
     btn.style.setProperty('--mood-color', group.color);
-    btn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}`;
+    btn.setAttribute('aria-label', group.label);
     btn.disabled = limitReached && !isSelected;
     btn.addEventListener('click', () => toggleGroupSelection(group.key));
     mainEl.appendChild(btn);
   });
 
   const activeGroups = MOODS.filter(g => selectedKeys.has(g.key));
+  captionEl.textContent = activeGroups.length > 0
+    ? activeGroups.map((g) => g.label).join(' · ')
+    : 'Tippe auf ein Gefühl';
   refineEl.classList.toggle('open', activeGroups.length > 0);
 
   if (activeGroups.length > 0) {
@@ -195,39 +199,34 @@ function renderEntries() {
     list.innerHTML = '<p class="empty-state">Noch keine Einträge. Dein erster Eintrag erscheint hier, sobald du ihn speicherst.</p>';
     return;
   }
+
+  const visible = [...entries].reverse().filter((e) => expandedEntryIds.has(e.id));
+
+  if (visible.length === 0) {
+    list.innerHTML = '<p class="empty-state">Tipp auf einen Balken im Emotionswetter oben, um einen Eintrag zu sehen.</p>';
+    return;
+  }
+
   list.innerHTML = '';
-  [...entries].reverse().forEach(e => {
+  visible.forEach((e) => {
     const chips = e.moods || [];
     const card = document.createElement('div');
     card.className = 'entry';
     card.id = 'entry-' + e.id;
 
     const moodHtml = chips.map(c => `<span><span class="mood-dot" style="background:${c.color}"></span>${c.label}</span>`).join(' · ');
-    const expanded = expandedEntryIds.has(e.id);
 
-    if (expanded) {
-      card.innerHTML = `
-        <div class="entry-head">
-          <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
-          <span class="entry-date">${formatDate(e.created_at)}</span>
-        </div>
-        <p class="entry-text">${escapeHtml(e.text)}</p>
-        <button class="ghost entry-toggle" data-id="${e.id}">▾ Weniger anzeigen</button>
-        <div class="reflection-box" id="reflection-${e.id}">
-          <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
-        </div>
-      `;
-    } else {
-      const hasReflection = conversations[e.id] !== undefined;
-      card.innerHTML = `
-        <div class="entry-head">
-          <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
-          <span class="entry-date">${formatDate(e.created_at)}${hasReflection ? ' · 🌊' : ''}</span>
-        </div>
-        <p class="entry-text entry-text-preview">${escapeHtml(truncate(e.text, 80))}</p>
-        <button class="ghost entry-toggle" data-id="${e.id}">▸ Mehr anzeigen</button>
-      `;
-    }
+    card.innerHTML = `
+      <div class="entry-head">
+        <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
+        <span class="entry-date">${formatDate(e.created_at)}</span>
+      </div>
+      <p class="entry-text">${escapeHtml(e.text)}</p>
+      <button class="ghost entry-toggle" data-id="${e.id}">▾ Ausblenden</button>
+      <div class="reflection-box" id="reflection-${e.id}">
+        <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
+      </div>
+    `;
     list.appendChild(card);
   });
 
@@ -354,10 +353,6 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-function truncate(str, max) {
-  return str.length > max ? str.slice(0, max).trimEnd() + '…' : str;
-}
-
 /* ---------- Eintrag speichern ---------- */
 async function saveEntry() {
   const text = $('entryText').value.trim();
@@ -416,7 +411,9 @@ async function init() {
   $('saveBtn').addEventListener('click', saveEntry);
   $('overviewBtn').addEventListener('click', startOverviewReflection);
 
-  weatherCard().addEventListener('click', (e) => {
+  const main = document.querySelector('.wrap');
+
+  main.addEventListener('click', (e) => {
     const reflectBtn = e.target.closest('.reflect-btn');
     if (reflectBtn) {
       const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
@@ -437,16 +434,12 @@ async function init() {
     }
   });
 
-  weatherCard().addEventListener('keydown', (e) => {
+  main.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.classList.contains('reflection-input')) {
       e.preventDefault();
       sendFollowUp(e.target.closest('.reflection-box'));
     }
   });
-}
-
-function weatherCard() {
-  return $('entriesList').closest('.card');
 }
 
 function sendFollowUp(box) {

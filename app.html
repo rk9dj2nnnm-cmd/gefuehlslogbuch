@@ -26,7 +26,8 @@
     <h2 class="section-title">Neuer Eintrag</h2>
 
     <label class="field-label">Welche Gefühle sind gerade da? (mehrere möglich)</label>
-    <div class="mood-pills" id="moodMainPills"></div>
+    <div class="mood-circles" id="moodMainPills"></div>
+    <div class="mood-circle-caption" id="moodCaption">Tippe auf ein Gefühl</div>
     <div class="mood-refine" id="moodRefine"></div>
 
     <div class="intensity-row">
@@ -47,15 +48,18 @@
 
   <div class="card">
     <h2 class="section-title">Emotionswetter</h2>
+    <p class="field-label">Tipp auf einen Balken, um den Eintrag von dem Tag zu sehen.</p>
     <div class="strip" id="strip"></div>
+    <div id="entriesList"></div>
+  </div>
 
+  <div class="card">
+    <h2 class="section-title">Gesamtbild</h2>
+    <p class="hint-msg" id="overviewHint">Ab 3 Einträgen verfügbar – schau dir an, ob sich Muster über die Zeit zeigen.</p>
     <div class="btn-row">
       <button class="ghost" id="overviewBtn" disabled>🌊 Auf den Grund gehen – über alle Einträge</button>
     </div>
-    <p class="hint-msg" id="overviewHint">Ab 3 Einträgen verfügbar – schau dir an, ob sich Muster über die Zeit zeigen.</p>
     <div class="reflection-box" id="reflection-overview"></div>
-
-    <div id="entriesList"></div>
   </div>
 
   <footer class="note">

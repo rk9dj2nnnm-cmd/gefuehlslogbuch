@@ -114,12 +114,47 @@ label.field-label {
   margin-bottom: 10px;
 }
 
-/* ---------- Mood picker (Hauptgefühle als Pills, Unterkategorien als Verfeinerung) ---------- */
-.mood-pills {
+/* ---------- Mood picker (Hauptgefühle als Icon-Kreise, Unterkategorien als Verfeinerung) ---------- */
+.mood-circles {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.mood-circle {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--mood-color);
+  opacity: 0.32;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.mood-circle:hover { opacity: 0.55; }
+.mood-circle.selected {
+  opacity: 1;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px rgba(237,234,227,0.18), 0 0 14px var(--mood-color);
+}
+.mood-circle:disabled {
+  opacity: 0.12;
+  cursor: not-allowed;
+}
+.mood-circle:disabled:hover { opacity: 0.12; }
+.mood-circle:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.mood-circle-caption {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+  min-height: 1.2em;
 }
 
 .mood-pill {
@@ -150,11 +185,6 @@ label.field-label {
   color: var(--ink);
   box-shadow: 0 0 0 1px var(--mood-color) inset;
 }
-.mood-pill:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-.mood-pill:disabled:hover { color: var(--ink-soft); }
 .mood-dot {
   width: 11px;
   height: 11px;
@@ -386,9 +416,6 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   color: var(--ink);
   line-height: 1.5;
   margin: 0 0 4px;
-}
-.entry-text-preview {
-  color: var(--ink-soft);
 }
 
 .entry-toggle {
