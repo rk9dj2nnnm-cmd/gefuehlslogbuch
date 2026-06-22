@@ -56,7 +56,7 @@ nachfragen.`;
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();
       console.error('Gemini-Fehler', errText);
-      res.status(502).json({ error: 'KI-Reflexion ist fehlgeschlagen.' });
+      res.status(502).json({ error: 'KI-Reflexion ist fehlgeschlagen.', debug: errText });
       return;
     }
 
