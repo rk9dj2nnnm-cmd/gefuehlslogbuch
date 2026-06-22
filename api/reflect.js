@@ -68,15 +68,25 @@ nachfragen.`;
     return;
   }
 
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+  const body = JSON.stringify({ contents });
+
   try {
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-      {
+    let geminiResponse = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body
+    });
+
+    // Das kostenlose Gemini-Kontingent ist manchmal kurz überlastet (503) — ein Versuch reicht meist.
+    if (geminiResponse.status === 503) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      geminiResponse = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents })
-      }
-    );
+        body
+      });
+    }
 
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();

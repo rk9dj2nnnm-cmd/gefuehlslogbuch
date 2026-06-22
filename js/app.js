@@ -1,5 +1,7 @@
 let entries = [];
 let selectedKeys = new Set(); // ausgewählte Grund- und/oder Unterkategorien
+let expandedEntryIds = new Set(); // welche Einträge voll ausgeklappt sind
+const RECENT_EXPANDED_COUNT = 4;
 
 const $ = (id) => document.getElementById(id);
 
@@ -43,17 +45,24 @@ function updateSky() {
 }
 
 /* ---------- Mood-Auswahl (Hauptgefühle als Pills, Unterkategorien als Verfeinerung) ---------- */
+const MAX_MAIN_MOODS = 3;
+
 function renderMoodGroups() {
   const mainEl = $('moodMainPills');
   const refineEl = $('moodRefine');
   mainEl.innerHTML = '';
   refineEl.innerHTML = '';
 
+  const selectedMainCount = MOODS.filter(g => selectedKeys.has(g.key)).length;
+  const limitReached = selectedMainCount >= MAX_MAIN_MOODS;
+
   MOODS.forEach(group => {
+    const isSelected = selectedKeys.has(group.key);
     const btn = document.createElement('button');
-    btn.className = 'mood-pill' + (selectedKeys.has(group.key) ? ' selected' : '');
+    btn.className = 'mood-pill' + (isSelected ? ' selected' : '');
     btn.style.setProperty('--mood-color', group.color);
     btn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}`;
+    btn.disabled = limitReached && !isSelected;
     btn.addEventListener('click', () => toggleGroupSelection(group.key));
     mainEl.appendChild(btn);
   });
@@ -97,6 +106,8 @@ function toggleGroupSelection(key) {
     const group = MOODS.find(g => g.key === key);
     group.children.forEach(c => selectedKeys.delete(c.key));
   } else {
+    const selectedMainCount = MOODS.filter(g => selectedKeys.has(g.key)).length;
+    if (selectedMainCount >= MAX_MAIN_MOODS) return;
     selectedKeys.add(key);
   }
   renderMoodGroups();
@@ -138,6 +149,18 @@ async function loadEntries() {
     console.error('Laden fehlgeschlagen', error);
     return [];
   }
+
+  data.forEach((e) => {
+    if (e.reflection && Array.isArray(e.reflection.messages) && e.reflection.messages.length > 0) {
+      conversations[e.id] = {
+        messages: e.reflection.messages,
+        history: e.reflection.history || [],
+        loading: false,
+        collapsed: true
+      };
+    }
+  });
+
   return data;
 }
 
@@ -179,17 +202,31 @@ function renderEntries() {
     card.id = 'entry-' + e.id;
 
     const moodHtml = chips.map(c => `<span><span class="mood-dot" style="background:${c.color}"></span>${c.label}</span>`).join(' · ');
+    const expanded = expandedEntryIds.has(e.id);
 
-    card.innerHTML = `
-      <div class="entry-head">
-        <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
-        <span class="entry-date">${formatDate(e.created_at)}</span>
-      </div>
-      <p class="entry-text">${escapeHtml(e.text)}</p>
-      <div class="reflection-box" id="reflection-${e.id}">
-        <button class="ghost reflect-btn" data-id="${e.id}">✨ KI-Reflexion</button>
-      </div>
-    `;
+    if (expanded) {
+      card.innerHTML = `
+        <div class="entry-head">
+          <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
+          <span class="entry-date">${formatDate(e.created_at)}</span>
+        </div>
+        <p class="entry-text">${escapeHtml(e.text)}</p>
+        <button class="ghost entry-toggle" data-id="${e.id}">▾ Weniger anzeigen</button>
+        <div class="reflection-box" id="reflection-${e.id}">
+          <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
+        </div>
+      `;
+    } else {
+      const hasReflection = conversations[e.id] !== undefined;
+      card.innerHTML = `
+        <div class="entry-head">
+          <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
+          <span class="entry-date">${formatDate(e.created_at)}${hasReflection ? ' · 🌊' : ''}</span>
+        </div>
+        <p class="entry-text entry-text-preview">${escapeHtml(truncate(e.text, 80))}</p>
+        <button class="ghost entry-toggle" data-id="${e.id}">▸ Mehr anzeigen</button>
+      `;
+    }
     list.appendChild(card);
   });
 
@@ -202,17 +239,26 @@ const conversations = {}; // entry.id -> { messages: [{role, text}], history: [.
 
 function renderReflectionBox(entryId) {
   const box = $('reflection-' + entryId);
+  if (!box) return; // Eintrag ist eingeklappt, Reflexionsbox aktuell nicht im DOM
   const convo = conversations[entryId];
 
+  box.classList.toggle('active', !!convo && !convo.collapsed);
+
   if (!convo) {
-    box.innerHTML = `<button class="ghost reflect-btn" data-id="${entryId}">✨ KI-Reflexion</button>`;
+    box.innerHTML = `<button class="ghost reflect-btn" data-id="${entryId}">🌊 Auf den Grund gehen</button>`;
+    return;
+  }
+
+  if (convo.collapsed) {
+    const count = convo.messages.length;
+    box.innerHTML = `<button class="ghost reflection-toggle" data-id="${entryId}">▸ Reflexion anzeigen (${count} Nachricht${count === 1 ? '' : 'en'})</button>`;
     return;
   }
 
   const messagesHtml = convo.messages
     .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
     .join('');
-  const loadingHtml = convo.loading ? '<p class="reflection-msg model loading">Denkt nach …</p>' : '';
+  const loadingHtml = convo.loading ? '<p class="reflection-msg model loading">Taucht ab …</p>' : '';
   const inputHtml = convo.loading
     ? ''
     : `<div class="reflection-input-row">
@@ -239,11 +285,21 @@ async function startReflection(entry) {
     conversations[entry.id].messages.push({ role: 'model', text: data.reply });
   } catch (err) {
     console.error(err);
-    conversations[entry.id].messages.push({ role: 'model', text: 'Reflexion konnte nicht geladen werden.' });
+    conversations[entry.id].messages.push({ role: 'model', text: 'Konnte gerade nicht auf den Grund gehen. Versuch es nochmal.' });
   } finally {
     conversations[entry.id].loading = false;
     renderReflectionBox(entry.id);
+    persistReflection(entry.id);
   }
+}
+
+async function persistReflection(entryId) {
+  const convo = conversations[entryId];
+  const { error } = await supabaseClient
+    .from('entries')
+    .update({ reflection: { messages: convo.messages, history: convo.history } })
+    .eq('id', entryId);
+  if (error) console.error('Reflexion konnte nicht gespeichert werden', error);
 }
 
 async function startOverviewReflection() {
@@ -264,7 +320,7 @@ async function startOverviewReflection() {
     conversations.overview.messages.push({ role: 'model', text: data.reply });
   } catch (err) {
     console.error(err);
-    conversations.overview.messages.push({ role: 'model', text: 'Gesamtreflexion konnte nicht geladen werden.' });
+    conversations.overview.messages.push({ role: 'model', text: 'Konnte gerade nicht auf den Grund gehen. Versuch es nochmal.' });
   } finally {
     conversations.overview.loading = false;
     renderReflectionBox('overview');
@@ -293,6 +349,7 @@ async function continueReflection(entryId, userMessage) {
   } finally {
     convo.loading = false;
     renderReflectionBox(entryId);
+    if (entryId !== 'overview') persistReflection(entryId);
   }
 }
 
@@ -300,6 +357,10 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function truncate(str, max) {
+  return str.length > max ? str.slice(0, max).trimEnd() + '…' : str;
 }
 
 /* ---------- Eintrag speichern ---------- */
@@ -323,6 +384,7 @@ async function saveEntry() {
   }
 
   entries.push(data);
+  expandedEntryIds.add(data.id);
   resetDraft();
   renderStrip();
   renderEntries();
@@ -350,6 +412,7 @@ async function init() {
   createSkyBlobs();
   renderMoodGroups();
   entries = await loadEntries();
+  entries.slice(-RECENT_EXPANDED_COUNT).forEach((e) => expandedEntryIds.add(e.id));
   renderStrip();
   renderEntries();
   updateOverviewButton();
@@ -363,6 +426,20 @@ async function init() {
     if (reflectBtn) {
       const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
       startReflection(entry);
+      return;
+    }
+    const toggleBtn = e.target.closest('.reflection-toggle');
+    if (toggleBtn) {
+      conversations[toggleBtn.dataset.id].collapsed = false;
+      renderReflectionBox(toggleBtn.dataset.id);
+      return;
+    }
+    const entryToggle = e.target.closest('.entry-toggle');
+    if (entryToggle) {
+      const id = entryToggle.dataset.id;
+      if (expandedEntryIds.has(id)) expandedEntryIds.delete(id);
+      else expandedEntryIds.add(id);
+      renderEntries();
       return;
     }
     const sendBtn = e.target.closest('.reflection-send');
