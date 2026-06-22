@@ -7,6 +7,7 @@ const MOODS = [
     key: 'freude',
     label: 'Freude',
     color: '#E8A33D',
+    emoji: '😊',
     children: [
       { key: 'begeisterung', label: 'Begeisterung' },
       { key: 'dankbarkeit', label: 'Dankbarkeit' },
@@ -19,6 +20,7 @@ const MOODS = [
     key: 'traurigkeit',
     label: 'Traurigkeit',
     color: '#6B7FE0',
+    emoji: '😢',
     children: [
       { key: 'enttaeuschung', label: 'Enttäuschung' },
       { key: 'einsamkeit', label: 'Einsamkeit' },
@@ -30,6 +32,7 @@ const MOODS = [
     key: 'wut',
     label: 'Wut',
     color: '#C1604A',
+    emoji: '😠',
     children: [
       { key: 'frustration', label: 'Frustration' },
       { key: 'genervtheit', label: 'Genervtheit' },
@@ -41,6 +44,7 @@ const MOODS = [
     key: 'angst',
     label: 'Angst',
     color: '#9A86C9',
+    emoji: '😨',
     children: [
       { key: 'sorge', label: 'Sorge' },
       { key: 'nervositaet', label: 'Nervosität' },
@@ -52,6 +56,7 @@ const MOODS = [
     key: 'ekel',
     label: 'Ekel',
     color: '#7C9A5C',
+    emoji: '🤢',
     children: [
       { key: 'abneigung', label: 'Abneigung' },
       { key: 'widerwillen', label: 'Widerwillen' },
@@ -62,6 +67,7 @@ const MOODS = [
     key: 'ueberraschung',
     label: 'Überraschung',
     color: '#D9C45C',
+    emoji: '😲',
     children: [
       { key: 'verwirrung', label: 'Verwirrung' },
       { key: 'erstaunen', label: 'Erstaunen' },
@@ -72,6 +78,7 @@ const MOODS = [
     key: 'scham',
     label: 'Scham',
     color: '#B5708C',
+    emoji: '😳',
     children: [
       { key: 'verlegenheit', label: 'Verlegenheit' },
       { key: 'schuldgefuehl', label: 'Schuldgefühl' },
@@ -83,6 +90,7 @@ const MOODS = [
     key: 'leere',
     label: 'Leere',
     color: '#9C968A',
+    emoji: '😶',
     children: [
       { key: 'erschoepfung', label: 'Erschöpfung' },
       { key: 'gleichgueltigkeit', label: 'Gleichgültigkeit' },

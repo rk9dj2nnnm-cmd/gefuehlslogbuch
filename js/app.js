@@ -63,6 +63,7 @@ function renderMoodGroups() {
     btn.className = 'mood-circle' + (isSelected ? ' selected' : '');
     btn.style.setProperty('--mood-color', group.color);
     btn.setAttribute('aria-label', group.label);
+    btn.textContent = group.emoji;
     btn.disabled = limitReached && !isSelected;
     btn.addEventListener('click', () => toggleGroupSelection(group.key));
     mainEl.appendChild(btn);
@@ -218,7 +219,7 @@ function renderEntries() {
 
     card.innerHTML = `
       <div class="entry-head">
-        <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
+        <span class="entry-mood">${moodHtml}</span>
         <span class="entry-date">${formatDate(e.created_at)}</span>
       </div>
       <p class="entry-text">${escapeHtml(e.text)}</p>
