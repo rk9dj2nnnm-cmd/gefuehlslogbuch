@@ -7,7 +7,7 @@ const MOODS = [
     key: 'freude',
     label: 'Freude',
     color: '#E8A33D',
-    emoji: '😊',
+    emoji: '😄',
     children: [
       { key: 'begeisterung', label: 'Begeisterung' },
       { key: 'dankbarkeit', label: 'Dankbarkeit' },
@@ -44,7 +44,7 @@ const MOODS = [
     key: 'angst',
     label: 'Angst',
     color: '#9A86C9',
-    emoji: '😨',
+    emoji: '🥶',
     children: [
       { key: 'sorge', label: 'Sorge' },
       { key: 'nervositaet', label: 'Nervosität' },

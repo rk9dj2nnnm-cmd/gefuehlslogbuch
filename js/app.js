@@ -9,7 +9,7 @@ function renderIntensityDots() {
   for (let i = 1; i <= 5; i++) {
     const dot = document.createElement('button');
     dot.type = 'button';
-    dot.className = 'intensity-dot' + (i <= selectedIntensity ? ' filled' : '');
+    dot.className = 'intensity-dot intensity-dot-' + i + (i <= selectedIntensity ? ' filled' : '');
     dot.setAttribute('aria-label', `Intensität ${i} von 5`);
     dot.addEventListener('click', () => {
       selectedIntensity = i;
@@ -62,7 +62,7 @@ function updateSky() {
 
 /* ---------- Mood-Auswahl (Hauptgefühle als Icon-Kreise, Unterkategorien als Verfeinerung) ---------- */
 const MAX_MAIN_MOODS = 3;
-const MAX_SUB_MOODS_PER_GROUP = 2;
+const MAX_SUB_MOODS_PER_GROUP = 3;
 
 function renderMoodGroups() {
   const mainEl = $('moodMainPills');
@@ -221,7 +221,7 @@ function renderStrip() {
   });
 }
 
-function entryInnerHtml(e) {
+function entryHeadHtml(e) {
   const chips = e.moods || [];
   const moodHtml = chips.map(c => `<span><span class="mood-dot" style="background:${c.color}"></span>${c.label}</span>`).join(' · ');
   return `
@@ -230,10 +230,28 @@ function entryInnerHtml(e) {
       <span class="entry-date">${formatDate(e.created_at)}</span>
     </div>
     <p class="entry-text">${escapeHtml(e.text)}</p>
+  `;
+}
+
+// Aktueller Eintrag: interaktive Reflexion (starten/weiterschreiben möglich)
+function currentEntryInnerHtml(e) {
+  return entryHeadHtml(e) + `
     <div class="reflection-box" id="reflection-${e.id}">
       <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
     </div>
   `;
+}
+
+// Ältere Einträge: keine neue Reflexion mehr möglich, nur bestehender Verlauf lesbar
+function historyEntryInnerHtml(e) {
+  const convo = conversations[e.id];
+  if (!convo) return entryHeadHtml(e);
+
+  const messagesHtml = convo.messages
+    .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
+    .join('');
+
+  return entryHeadHtml(e) + `<div class="reflection-box active readonly">${messagesHtml}</div>`;
 }
 
 function isToday(iso) {
@@ -252,7 +270,7 @@ function renderCurrentEntry() {
   }
   const e = entries[entries.length - 1];
   heading.textContent = isToday(e.created_at) ? 'Dein aktueller Eintrag' : 'Dein letzter Eintrag';
-  box.innerHTML = entryInnerHtml(e);
+  box.innerHTML = currentEntryInnerHtml(e);
   renderReflectionBox(e.id);
 }
 
@@ -276,10 +294,8 @@ function renderEntries() {
   const card = document.createElement('div');
   card.className = 'entry';
   card.id = 'entry-' + open.id;
-  card.innerHTML = entryInnerHtml(open);
+  card.innerHTML = historyEntryInnerHtml(open);
   list.appendChild(card);
-
-  renderReflectionBox(open.id);
 }
 
 /* ---------- KI-Reflexionsgespräch (Gemini über eigene Vercel-Function) ---------- */
