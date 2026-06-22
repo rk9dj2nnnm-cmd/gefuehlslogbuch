@@ -157,6 +157,7 @@ label.field-label {
 .mood-circles {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
 }
@@ -282,7 +283,7 @@ label.field-label {
 }
 .intensity-dots {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
   margin-top: 8px;
 }
 .intensity-dot {
@@ -483,15 +484,6 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   margin: 0 0 4px;
 }
 
-.entry-toggle {
-  background: transparent;
-  border: none;
-  padding: 4px 0 0;
-  font-size: 0.78rem;
-  color: var(--ink-faint);
-  cursor: pointer;
-}
-.entry-toggle:hover { color: var(--ink-soft); }
 
 .reflection-box {
   margin-top: 14px;

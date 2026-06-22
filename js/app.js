@@ -1,6 +1,6 @@
 let entries = [];
 let selectedKeys = new Set(); // ausgewählte Grund- und/oder Unterkategorien
-let expandedEntryIds = new Set(); // welche älteren Einträge zusätzlich aufgeklappt sind
+let openHistoryEntryId = null; // welcher ältere Eintrag aktuell aufgeklappt ist (immer nur einer)
 let selectedIntensity = 3;
 
 function renderIntensityDots() {
@@ -212,7 +212,7 @@ function renderStrip() {
         document.querySelector('.current-entry-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
       }
-      expandedEntryIds.add(e.id);
+      openHistoryEntryId = openHistoryEntryId === e.id ? null : e.id;
       renderEntries();
       const target = document.getElementById('entry-' + e.id);
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -221,31 +221,38 @@ function renderStrip() {
   });
 }
 
-function entryInnerHtml(e, withHideToggle) {
+function entryInnerHtml(e) {
   const chips = e.moods || [];
   const moodHtml = chips.map(c => `<span><span class="mood-dot" style="background:${c.color}"></span>${c.label}</span>`).join(' · ');
-  const hideBtn = withHideToggle ? `<button class="ghost entry-toggle" data-id="${e.id}">▾ Ausblenden</button>` : '';
   return `
     <div class="entry-head">
       <span class="entry-mood">${moodHtml}</span>
       <span class="entry-date">${formatDate(e.created_at)}</span>
     </div>
     <p class="entry-text">${escapeHtml(e.text)}</p>
-    ${hideBtn}
     <div class="reflection-box" id="reflection-${e.id}">
       <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
     </div>
   `;
 }
 
+function isToday(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  return d.toDateString() === now.toDateString();
+}
+
 function renderCurrentEntry() {
   const box = $('currentEntryBox');
+  const heading = $('currentEntryHeading');
   if (entries.length === 0) {
+    heading.textContent = 'Dein aktueller Eintrag';
     box.innerHTML = '<p class="empty-state">Noch keine Einträge. Dein erster Eintrag erscheint hier, sobald du ihn speicherst.</p>';
     return;
   }
   const e = entries[entries.length - 1];
-  box.innerHTML = entryInnerHtml(e, false);
+  heading.textContent = isToday(e.created_at) ? 'Dein aktueller Eintrag' : 'Dein letzter Eintrag';
+  box.innerHTML = entryInnerHtml(e);
   renderReflectionBox(e.id);
 }
 
@@ -258,24 +265,21 @@ function renderEntries() {
     return;
   }
 
-  const visible = [...olderEntries].reverse().filter((e) => expandedEntryIds.has(e.id));
+  const open = olderEntries.find((e) => e.id === openHistoryEntryId);
 
-  if (visible.length === 0) {
+  if (!open) {
     list.innerHTML = '<p class="empty-state">Tipp auf einen Balken im Emotionswetter oben, um einen älteren Eintrag zu sehen.</p>';
     return;
   }
 
   list.innerHTML = '';
-  visible.forEach((e) => {
-    const card = document.createElement('div');
-    card.className = 'entry';
-    card.id = 'entry-' + e.id;
-    card.innerHTML = entryInnerHtml(e, true);
-    list.appendChild(card);
-  });
+  const card = document.createElement('div');
+  card.className = 'entry';
+  card.id = 'entry-' + open.id;
+  card.innerHTML = entryInnerHtml(open);
+  list.appendChild(card);
 
-  // Laufende Reflexionsgespräche überleben den Neuaufbau der Liste (z.B. nach dem Speichern eines neuen Eintrags).
-  Object.keys(conversations).forEach((entryId) => renderReflectionBox(entryId));
+  renderReflectionBox(open.id);
 }
 
 /* ---------- KI-Reflexionsgespräch (Gemini über eigene Vercel-Function) ---------- */
@@ -463,14 +467,6 @@ async function init() {
     if (reflectBtn) {
       const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
       startReflection(entry);
-      return;
-    }
-    const entryToggle = e.target.closest('.entry-toggle');
-    if (entryToggle) {
-      const id = entryToggle.dataset.id;
-      if (expandedEntryIds.has(id)) expandedEntryIds.delete(id);
-      else expandedEntryIds.add(id);
-      renderEntries();
       return;
     }
     const sendBtn = e.target.closest('.reflection-send');
