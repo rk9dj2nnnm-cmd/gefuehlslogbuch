@@ -89,7 +89,7 @@ function renderMoodGroups() {
   const activeGroups = MOODS.filter(g => selectedKeys.has(g.key));
   captionEl.textContent = activeGroups.length > 0
     ? activeGroups.map((g) => g.label).join(' · ')
-    : 'Tippe auf ein Gefühl';
+    : '';
   refineEl.classList.toggle('open', activeGroups.length > 0);
 
   if (activeGroups.length > 0) {
