@@ -61,12 +61,13 @@ function updateSky() {
 }
 
 /* ---------- Mood-Auswahl (Hauptgefühle als Icon-Kreise, Unterkategorien als Verfeinerung) ---------- */
-const MAX_MAIN_MOODS = 2;
+const MAX_MAIN_MOODS = 3;
 const MAX_SUB_MOODS_PER_GROUP = 3;
 let justSelectedKey = null; // löst beim Rendern einmalig den Auswahl-Effekt aus
 
 function renderMoodGroups() {
   const mainEl = $('moodMainPills');
+  const captionEl = $('moodCaption');
   const refineEl = $('moodRefine');
   mainEl.innerHTML = '';
   refineEl.innerHTML = '';
@@ -89,6 +90,7 @@ function renderMoodGroups() {
   justSelectedKey = null;
 
   const activeGroups = MOODS.filter(g => selectedKeys.has(g.key));
+  captionEl.textContent = activeGroups.map((g) => g.label).join(' · ');
   refineEl.classList.toggle('open', activeGroups.length > 0);
 
   if (activeGroups.length > 0) {

@@ -380,6 +380,13 @@ label.field-label {
   flex-shrink: 0;
 }
 
+.mood-circle-caption {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+  min-height: 1.2em;
+}
+
 .mood-refine {
   max-height: 0;
   overflow: hidden;
