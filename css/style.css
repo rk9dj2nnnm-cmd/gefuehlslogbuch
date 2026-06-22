@@ -79,9 +79,9 @@ body {
 }
 
 .sky-date {
-  font-family: var(--serif);
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-family: var(--sans);
+  font-size: 1.4rem;
+  font-weight: 600;
   letter-spacing: 0.2px;
 }
 
@@ -423,7 +423,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   padding: 16px 14px 14px;
   border-top: none;
   border-radius: var(--radius-md);
-  background: linear-gradient(160deg, #0d2226, #163238, #1d4248, #163238, #0d2226);
+  background: linear-gradient(160deg, #0a1a2e, #112a45, #1a3a5c, #112a45, #0a1a2e);
   background-size: 250% 250%;
   animation: waveDrift 16s ease-in-out infinite;
 }
@@ -435,7 +435,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: rgba(159, 219, 214, 0.35);
+  background: rgba(150, 195, 230, 0.35);
   animation: bubbleRise 7s ease-in infinite;
   pointer-events: none;
 }
@@ -471,7 +471,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   align-self: flex-start;
   background: var(--bg-deep);
   color: var(--ink-soft);
-  font-family: var(--serif);
+  font-family: var(--sans);
   border-bottom-left-radius: 4px;
 }
 .reflection-msg.user {

@@ -155,8 +155,7 @@ async function loadEntries() {
       conversations[e.id] = {
         messages: e.reflection.messages,
         history: e.reflection.history || [],
-        loading: false,
-        collapsed: true
+        loading: false
       };
     }
   });
@@ -181,6 +180,8 @@ function renderStrip() {
     bar.style.background = chips.length ? chips[0].color : '#888';
     bar.title = formatDate(e.created_at) + ' · ' + chips.map(c => c.label).join(', ');
     bar.addEventListener('click', () => {
+      expandedEntryIds.add(e.id);
+      renderEntries();
       const target = document.getElementById('entry-' + e.id);
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
@@ -242,16 +243,10 @@ function renderReflectionBox(entryId) {
   if (!box) return; // Eintrag ist eingeklappt, Reflexionsbox aktuell nicht im DOM
   const convo = conversations[entryId];
 
-  box.classList.toggle('active', !!convo && !convo.collapsed);
+  box.classList.toggle('active', !!convo);
 
   if (!convo) {
     box.innerHTML = `<button class="ghost reflect-btn" data-id="${entryId}">🌊 Auf den Grund gehen</button>`;
-    return;
-  }
-
-  if (convo.collapsed) {
-    const count = convo.messages.length;
-    box.innerHTML = `<button class="ghost reflection-toggle" data-id="${entryId}">▸ Reflexion anzeigen (${count} Nachricht${count === 1 ? '' : 'en'})</button>`;
     return;
   }
 
@@ -426,12 +421,6 @@ async function init() {
     if (reflectBtn) {
       const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
       startReflection(entry);
-      return;
-    }
-    const toggleBtn = e.target.closest('.reflection-toggle');
-    if (toggleBtn) {
-      conversations[toggleBtn.dataset.id].collapsed = false;
-      renderReflectionBox(toggleBtn.dataset.id);
       return;
     }
     const entryToggle = e.target.closest('.entry-toggle');
