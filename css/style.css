@@ -79,7 +79,7 @@ body {
   width: 22px;
   height: 10px;
   opacity: 0;
-  animation: fishSwim linear infinite;
+  animation: fishSwim linear infinite, fishWiggle 2.4s ease-in-out infinite;
 }
 .page-fish span::before {
   content: '';
@@ -613,6 +613,11 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   82% { opacity: 0.4; }
   91% { opacity: 0.4; }
   100% { opacity: 0; left: 106%; }
+}
+
+@keyframes fishWiggle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(3px) rotate(3deg); }
 }
 
 @keyframes subDrift {
