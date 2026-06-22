@@ -279,13 +279,6 @@ label.field-label {
   outline-offset: 3px;
 }
 
-.mood-circle-caption {
-  font-size: 0.82rem;
-  color: var(--ink-faint);
-  margin-bottom: 16px;
-  min-height: 1.2em;
-}
-
 .mood-pill {
   display: inline-flex;
   align-items: center;

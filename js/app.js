@@ -66,7 +66,6 @@ const MAX_SUB_MOODS_PER_GROUP = 3;
 
 function renderMoodGroups() {
   const mainEl = $('moodMainPills');
-  const captionEl = $('moodCaption');
   const refineEl = $('moodRefine');
   mainEl.innerHTML = '';
   refineEl.innerHTML = '';
@@ -87,9 +86,6 @@ function renderMoodGroups() {
   });
 
   const activeGroups = MOODS.filter(g => selectedKeys.has(g.key));
-  captionEl.textContent = activeGroups.length > 0
-    ? activeGroups.map((g) => g.label).join(' · ')
-    : '';
   refineEl.classList.toggle('open', activeGroups.length > 0);
 
   if (activeGroups.length > 0) {
