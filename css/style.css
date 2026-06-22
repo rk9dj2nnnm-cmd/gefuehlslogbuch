@@ -208,7 +208,7 @@ input[type="range"] {
 }
 
 /* ---------- Textarea ---------- */
-textarea, input[type="text"] {
+textarea, input[type="text"], input[type="email"], input[type="password"] {
   width: 100%;
   background: var(--bg-deep);
   border: 1px solid rgba(237,234,227,0.14);
@@ -221,11 +221,66 @@ textarea, input[type="text"] {
   line-height: 1.5;
 }
 textarea { min-height: 92px; }
-textarea:focus, input[type="text"]:focus {
+textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
   outline: none;
   border-color: var(--accent);
 }
 textarea::placeholder, input::placeholder { color: var(--ink-faint); }
+
+/* ---------- Auth (Login/Registrierung) ---------- */
+.auth-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.auth-toggle button.ghost.active {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.field-group {
+  margin-bottom: 16px;
+}
+.error-msg {
+  color: #E08585;
+  font-size: 0.82rem;
+  margin-top: 12px;
+  min-height: 1.2em;
+}
+.hint-msg {
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+/* ---------- Topbar (eingeloggte App) ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+.user-email {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.logout-btn {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid rgba(237,234,227,0.18);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.logout-btn:hover { color: var(--ink); }
 
 /* ---------- Buttons ---------- */
 .btn-row {

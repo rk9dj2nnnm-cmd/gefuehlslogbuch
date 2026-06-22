@@ -3,44 +3,45 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gefühlslogbuch</title>
-<link rel="stylesheet" href="style.css" />
+<title>Gefühlslogbuch – Anmelden</title>
+<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <div class="wrap">
 
-  <div class="sky" id="sky">
+  <div class="sky">
     <div class="sky-content">
-      <div class="sky-date" id="todayLabel"></div>
-      <div class="sky-sub">Wie fühlt sich dein Moment gerade an?</div>
+      <div class="sky-date">Gefühlslogbuch</div>
+      <div class="sky-sub">Melde dich an, um deine Einträge zu sehen.</div>
     </div>
   </div>
 
   <div class="card">
-    <h2 class="section-title">Neuer Eintrag</h2>
-
-    <label class="field-label">Welche Gefühle sind gerade da? (mehrere möglich)</label>
-    <div class="mood-groups" id="moodGroups"></div>
-
-    <div class="intensity-row">
-      <label class="field-label">Wie stark insgesamt?</label>
-      <input type="range" id="intensity" min="1" max="5" value="3" />
-      <div class="intensity-labels"><span>kaum spürbar</span><span>überwältigend</span></div>
+    <div class="auth-toggle">
+      <button class="ghost active" id="tabLogin" type="button">Anmelden</button>
+      <button class="ghost" id="tabRegister" type="button">Registrieren</button>
     </div>
 
-    <label class="field-label" for="entryText">Was ist passiert? Was geht dir durch den Kopf?</label>
-    <textarea id="entryText" placeholder="Schreib einfach los, so wie es kommt …"></textarea>
+    <h2 class="section-title" id="authTitle">Willkommen zurück</h2>
 
-    <div class="btn-row">
-      <button class="primary" id="saveBtn" disabled>Eintrag speichern</button>
-    </div>
-  </div>
+    <form id="authForm">
+      <div class="field-group">
+        <label class="field-label" for="email">E-Mail</label>
+        <input type="email" id="email" autocomplete="email" required />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="password">Passwort</label>
+        <input type="password" id="password" autocomplete="current-password" minlength="6" required />
+      </div>
 
-  <div class="card">
-    <h2 class="section-title">Emotionswetter</h2>
-    <div class="strip" id="strip"></div>
-    <div id="entriesList"></div>
+      <div class="btn-row">
+        <button class="primary" type="submit" id="submitBtn">Anmelden</button>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="hint-msg" id="hintMsg"></div>
+    </form>
   </div>
 
   <footer class="note">
@@ -49,7 +50,8 @@
 
 </div>
 
-<script src="moods.js"></script>
-<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/auth.js"></script>
 </body>
 </html>
