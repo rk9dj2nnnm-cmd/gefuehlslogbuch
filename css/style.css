@@ -300,10 +300,10 @@ label.field-label {
   border-color: var(--accent);
 }
 .intensity-dot-1 { width: 14px; height: 14px; }
-.intensity-dot-2 { width: 18px; height: 18px; }
-.intensity-dot-3 { width: 22px; height: 22px; }
-.intensity-dot-4 { width: 26px; height: 26px; }
-.intensity-dot-5 { width: 30px; height: 30px; }
+.intensity-dot-2 { width: 17px; height: 17px; }
+.intensity-dot-3 { width: 20px; height: 20px; }
+.intensity-dot-4 { width: 23px; height: 23px; }
+.intensity-dot-5 { width: 26px; height: 26px; }
 .intensity-dot.filled.intensity-dot-2 { box-shadow: 0 0 3px var(--accent); }
 .intensity-dot.filled.intensity-dot-3 { box-shadow: 0 0 5px var(--accent); }
 .intensity-dot.filled.intensity-dot-4 { box-shadow: 0 0 8px var(--accent); }
