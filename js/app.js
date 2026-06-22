@@ -1,5 +1,3 @@
-const STORAGE_KEY = 'gefuehlslogbuch-entries';
-
 let entries = [];
 let selectedKeys = new Set();   // ausgewählte Grund- und/oder Unterkategorien
 let expandedGroups = new Set(); // welche Grundgefühle aktuell aufgeklappt sind
@@ -113,22 +111,22 @@ function updateButtons() {
   $('saveBtn').disabled = !ready;
 }
 
-/* ---------- Speichern / Laden (nur im Browser, localStorage) ---------- */
-function loadEntries() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
+/* ---------- Speichern / Laden (Supabase, pro Nutzer durch RLS getrennt) ---------- */
+async function loadEntries() {
+  const { data, error } = await supabaseClient
+    .from('entries')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Laden fehlgeschlagen', error);
     return [];
   }
+  return data;
 }
 
-function persistEntries() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  } catch (e) {
-    console.error('Speichern fehlgeschlagen', e);
-  }
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 /* ---------- Emotionswetter-Streifen ---------- */
@@ -142,7 +140,7 @@ function renderStrip() {
     const h = 16 + (e.intensity || 3) * 8;
     bar.style.height = h + 'px';
     bar.style.background = chips.length ? chips[0].color : '#888';
-    bar.title = e.dateLabel + ' · ' + chips.map(c => c.label).join(', ');
+    bar.title = formatDate(e.created_at) + ' · ' + chips.map(c => c.label).join(', ');
     bar.addEventListener('click', () => {
       const target = document.getElementById('entry-' + e.id);
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -169,7 +167,7 @@ function renderEntries() {
     card.innerHTML = `
       <div class="entry-head">
         <span class="entry-mood">${moodHtml} · ${e.intensity}/5</span>
-        <span class="entry-date">${e.dateLabel}</span>
+        <span class="entry-date">${formatDate(e.created_at)}</span>
       </div>
       <p class="entry-text">${escapeHtml(e.text)}</p>
     `;
@@ -184,21 +182,26 @@ function escapeHtml(str) {
 }
 
 /* ---------- Eintrag speichern ---------- */
-function saveEntry() {
+async function saveEntry() {
   const text = $('entryText').value.trim();
   if (selectedKeys.size === 0 || !text) return;
   const intensity = parseInt($('intensity').value, 10);
 
-  entries.push({
-    id: Date.now().toString(),
-    dateLabel: new Date().toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }),
-    moods: selectedMoodChips(),
-    intensity: intensity,
-    text: text,
-    createdAt: Date.now()
-  });
+  $('saveBtn').disabled = true;
 
-  persistEntries();
+  const { data, error } = await supabaseClient
+    .from('entries')
+    .insert({ moods: selectedMoodChips(), intensity, text })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Speichern fehlgeschlagen', error);
+    $('saveBtn').disabled = false;
+    return;
+  }
+
+  entries.push(data);
   resetDraft();
   renderStrip();
   renderEntries();
@@ -214,11 +217,11 @@ function resetDraft() {
   updateButtons();
 }
 
-function init() {
+async function init() {
   $('todayLabel').textContent = todayLabel();
   createSkyBlobs();
   renderMoodGroups();
-  entries = loadEntries();
+  entries = await loadEntries();
   renderStrip();
   renderEntries();
 
@@ -226,4 +229,6 @@ function init() {
   $('saveBtn').addEventListener('click', saveEntry);
 }
 
-init();
+window.authReady.then((user) => {
+  if (user) init();
+});

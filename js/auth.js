@@ -66,12 +66,13 @@ function initAppAuthGuard() {
   const userEmailEl = $a('userEmail');
   const logoutBtn = $a('logoutBtn');
 
-  supabaseClient.auth.getSession().then(({ data }) => {
+  window.authReady = supabaseClient.auth.getSession().then(({ data }) => {
     if (!data.session) {
       window.location.href = 'index.html';
-      return;
+      return null;
     }
     userEmailEl.textContent = data.session.user.email;
+    return data.session.user;
   });
 
   logoutBtn.addEventListener('click', async () => {
