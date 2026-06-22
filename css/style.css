@@ -181,6 +181,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .blob { transition: opacity 0.2s linear; }
 }
+@media (prefers-reduced-motion: reduce) {
+  .mood-circle.just-selected { animation: none; }
+}
 .blob.active { opacity: 0.85; }
 
 .sky-content {
@@ -277,6 +280,64 @@ label.field-label {
 .mood-circle:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
+}
+
+/* ---------- Auswahl-Effekte: jedes Gefühl bekommt beim Antippen seine eigene kleine Geste ---------- */
+.mood-circle.just-selected {
+  animation-duration: 0.45s;
+  animation-timing-function: ease;
+}
+.mood-circle.just-selected[data-mood="freude"] { animation-name: popRise; }
+.mood-circle.just-selected[data-mood="traurigkeit"] { animation-name: popSink; }
+.mood-circle.just-selected[data-mood="wut"] { animation-name: popFlash; animation-duration: 0.5s; }
+.mood-circle.just-selected[data-mood="angst"] { animation-name: popShake; animation-duration: 0.5s; }
+.mood-circle.just-selected[data-mood="ekel"] { animation-name: popRecoil; }
+.mood-circle.just-selected[data-mood="ueberraschung"] { animation-name: popBurst; animation-duration: 0.5s; }
+.mood-circle.just-selected[data-mood="scham"] { animation-name: popShrink; }
+.mood-circle.just-selected[data-mood="leere"] { animation-name: popRing; animation-duration: 0.6s; }
+
+@keyframes popRise {
+  0% { transform: scale(1) translateY(0); }
+  45% { transform: scale(1.3) translateY(-5px); }
+  100% { transform: scale(1.1) translateY(0); }
+}
+@keyframes popSink {
+  0% { transform: scale(1) translateY(0); }
+  45% { transform: scale(1.05) translateY(4px); }
+  100% { transform: scale(1.1) translateY(0); }
+}
+@keyframes popFlash {
+  0% { transform: scale(1); filter: brightness(1); box-shadow: 0 0 0 var(--mood-color); }
+  30% { transform: scale(1.25); filter: brightness(1.9); box-shadow: 0 0 16px var(--mood-color); }
+  100% { transform: scale(1.1); filter: brightness(1); box-shadow: 0 0 14px var(--mood-color); }
+}
+@keyframes popShake {
+  0% { transform: scale(1) translateX(0); }
+  20% { transform: scale(1.1) translateX(-3px); }
+  40% { transform: scale(1.1) translateX(3px); }
+  60% { transform: scale(1.1) translateX(-2px); }
+  80% { transform: scale(1.1) translateX(2px); }
+  100% { transform: scale(1.1) translateX(0); }
+}
+@keyframes popRecoil {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.82); }
+  65% { transform: scale(1.22); }
+  100% { transform: scale(1.1); }
+}
+@keyframes popBurst {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--mood-color); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1.1); box-shadow: 0 0 0 14px transparent; }
+}
+@keyframes popShrink {
+  0% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+@keyframes popRing {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--mood-color); }
+  100% { transform: scale(1.1); box-shadow: 0 0 0 16px transparent; }
 }
 
 .mood-pill {

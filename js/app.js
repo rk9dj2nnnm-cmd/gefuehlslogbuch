@@ -61,8 +61,9 @@ function updateSky() {
 }
 
 /* ---------- Mood-Auswahl (Hauptgefühle als Icon-Kreise, Unterkategorien als Verfeinerung) ---------- */
-const MAX_MAIN_MOODS = 3;
+const MAX_MAIN_MOODS = 2;
 const MAX_SUB_MOODS_PER_GROUP = 3;
+let justSelectedKey = null; // löst beim Rendern einmalig den Auswahl-Effekt aus
 
 function renderMoodGroups() {
   const mainEl = $('moodMainPills');
@@ -76,7 +77,8 @@ function renderMoodGroups() {
   MOODS.forEach(group => {
     const isSelected = selectedKeys.has(group.key);
     const btn = document.createElement('button');
-    btn.className = 'mood-circle' + (isSelected ? ' selected' : '');
+    btn.className = 'mood-circle' + (isSelected ? ' selected' : '') + (group.key === justSelectedKey ? ' just-selected' : '');
+    btn.dataset.mood = group.key;
     btn.style.setProperty('--mood-color', group.color);
     btn.setAttribute('aria-label', group.label);
     btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${group.icon}</svg>`;
@@ -84,6 +86,7 @@ function renderMoodGroups() {
     btn.addEventListener('click', () => toggleGroupSelection(group.key));
     mainEl.appendChild(btn);
   });
+  justSelectedKey = null;
 
   const activeGroups = MOODS.filter(g => selectedKeys.has(g.key));
   refineEl.classList.toggle('open', activeGroups.length > 0);
@@ -132,6 +135,7 @@ function toggleGroupSelection(key) {
     const selectedMainCount = MOODS.filter(g => selectedKeys.has(g.key)).length;
     if (selectedMainCount >= MAX_MAIN_MOODS) return;
     selectedKeys.add(key);
+    justSelectedKey = key;
   }
   renderMoodGroups();
   updateSky();
