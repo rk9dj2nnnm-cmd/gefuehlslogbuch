@@ -76,11 +76,32 @@ body {
 }
 .page-fish span {
   position: absolute;
+  width: 22px;
+  height: 10px;
   opacity: 0;
   animation: fishSwim linear infinite;
 }
-.page-fish span:nth-child(1) { top: 20%; font-size: 1.3rem; animation-duration: 75s; animation-delay: 5s; }
-.page-fish span:nth-child(2) { top: 62%; font-size: 1rem;  animation-duration: 95s; animation-delay: 40s; }
+.page-fish span::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(170, 200, 225, 0.38);
+  border-radius: 50%;
+}
+.page-fish span::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: -7px;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-right: 7px solid rgba(170, 200, 225, 0.38);
+}
+.page-fish span:nth-child(1) { top: 20%; animation-duration: 75s; animation-delay: 5s; }
+.page-fish span:nth-child(2) { top: 62%; width: 16px; height: 7px; animation-duration: 95s; animation-delay: 40s; }
+.page-fish span:nth-child(2)::after { border-width: 3px 0 3px 0; border-right-width: 5px; top: 0.5px; left: -5px; }
 
 .page-sub {
   position: fixed;
