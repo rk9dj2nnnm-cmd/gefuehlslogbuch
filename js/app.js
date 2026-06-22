@@ -317,14 +317,21 @@ function renderReflectionBox(entryId) {
     .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
     .join('');
   const loadingHtml = convo.loading ? '<p class="reflection-msg model loading">Taucht ab …</p>' : '';
-  const inputHtml = convo.loading
-    ? ''
-    : `<div class="reflection-input-row">
-         <input type="text" class="reflection-input" placeholder="Antworten …" />
-         <button class="ghost reflection-send">Senden</button>
-       </div>`;
 
-  box.innerHTML = messagesHtml + loadingHtml + inputHtml;
+  // Solange der erste Austausch nicht erfolgreich war, gibt es keinen gültigen
+  // Gesprächsverlauf für eine Fortsetzung – dann nur ein Retry anbieten statt
+  // eines Antwortfelds, das ohnehin nur einen Folgefehler produzieren würde.
+  let actionHtml = '';
+  if (!convo.loading) {
+    actionHtml = convo.history.length > 0
+      ? `<div class="reflection-input-row">
+           <input type="text" class="reflection-input" placeholder="Antworten …" />
+           <button class="ghost reflection-send">Senden</button>
+         </div>`
+      : `<button class="ghost reflect-btn" data-id="${entryId}">🌊 Nochmal versuchen</button>`;
+  }
+
+  box.innerHTML = messagesHtml + loadingHtml + actionHtml;
 }
 
 async function startReflection(entry) {
@@ -481,8 +488,12 @@ async function init() {
   main.addEventListener('click', (e) => {
     const reflectBtn = e.target.closest('.reflect-btn');
     if (reflectBtn) {
-      const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
-      startReflection(entry);
+      if (reflectBtn.dataset.id === 'overview') {
+        startOverviewReflection();
+      } else {
+        const entry = entries.find((en) => en.id === reflectBtn.dataset.id);
+        startReflection(entry);
+      }
       return;
     }
     const sendBtn = e.target.closest('.reflection-send');
