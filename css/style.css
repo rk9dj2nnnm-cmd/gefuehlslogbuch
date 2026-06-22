@@ -374,6 +374,18 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   margin: 0 0 4px;
 }
 
+.entry .btn-row { margin-top: 4px; }
+
+.reflection-text {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  margin: 12px 0 0;
+}
+.reflection-text:empty { margin: 0; }
+
 footer.note {
   font-size: 0.76rem;
   color: var(--ink-faint);

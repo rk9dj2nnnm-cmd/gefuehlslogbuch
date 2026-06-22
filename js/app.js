@@ -170,9 +170,37 @@ function renderEntries() {
         <span class="entry-date">${formatDate(e.created_at)}</span>
       </div>
       <p class="entry-text">${escapeHtml(e.text)}</p>
+      <div class="btn-row">
+        <button class="ghost reflect-btn" data-id="${e.id}">✨ KI-Reflexion</button>
+      </div>
+      <p class="reflection-text" id="reflection-${e.id}"></p>
     `;
     list.appendChild(card);
   });
+}
+
+/* ---------- KI-Reflexion (Gemini über eigene Vercel-Function) ---------- */
+async function requestReflection(entry, btn, resultEl) {
+  btn.disabled = true;
+  btn.textContent = 'Denkt nach …';
+  resultEl.textContent = '';
+
+  try {
+    const res = await fetch('/api/reflect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: entry.text, moods: entry.moods, intensity: entry.intensity })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Fehler');
+    resultEl.textContent = data.reflection;
+  } catch (err) {
+    console.error(err);
+    resultEl.textContent = 'Reflexion konnte nicht geladen werden.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ KI-Reflexion';
+  }
 }
 
 function escapeHtml(str) {
@@ -227,6 +255,14 @@ async function init() {
 
   $('entryText').addEventListener('input', updateButtons);
   $('saveBtn').addEventListener('click', saveEntry);
+
+  $('entriesList').addEventListener('click', (e) => {
+    const btn = e.target.closest('.reflect-btn');
+    if (!btn) return;
+    const entry = entries.find((en) => en.id === btn.dataset.id);
+    const resultEl = $('reflection-' + entry.id);
+    requestReflection(entry, btn, resultEl);
+  });
 }
 
 window.authReady.then((user) => {
