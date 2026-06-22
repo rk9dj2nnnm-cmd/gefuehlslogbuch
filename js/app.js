@@ -1,6 +1,5 @@
 let entries = [];
-let selectedKeys = new Set();   // ausgewählte Grund- und/oder Unterkategorien
-let expandedGroups = new Set(); // welche Grundgefühle aktuell aufgeklappt sind
+let selectedKeys = new Set(); // ausgewählte Grund- und/oder Unterkategorien
 
 const $ = (id) => document.getElementById(id);
 
@@ -20,7 +19,7 @@ function createSkyBlobs() {
     const blob = document.createElement('div');
     blob.className = 'blob';
     blob.id = 'blob-' + group.key;
-    blob.style.background = `radial-gradient(circle at ${x}% ${y}%, ${group.color}, #161B30 70%)`;
+    blob.style.background = `radial-gradient(circle at ${x}% ${y}%, ${group.color}, transparent 70%)`;
     sky.insertBefore(blob, skyContent);
   });
 }
@@ -43,47 +42,66 @@ function updateSky() {
   });
 }
 
-/* ---------- Mood-Auswahl (Grundgefühle klappen auf, Unterkategorien sind wählbar) ---------- */
+/* ---------- Mood-Auswahl (Hauptgefühle als Pills, Unterkategorien als Verfeinerung) ---------- */
 function renderMoodGroups() {
-  const el = $('moodGroups');
-  el.innerHTML = '';
+  const mainEl = $('moodMainPills');
+  const refineEl = $('moodRefine');
+  mainEl.innerHTML = '';
+  refineEl.innerHTML = '';
 
   MOODS.forEach(group => {
-    const row = document.createElement('div');
-    row.className = 'mood-group-row';
-
-    const expanded = expandedGroups.has(group.key);
-    const groupBtn = document.createElement('button');
-    groupBtn.className = 'mood-btn group' + (selectedKeys.has(group.key) ? ' selected' : '') + (expanded ? ' expanded' : '');
-    groupBtn.style.setProperty('--mood-color', group.color);
-    groupBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-    groupBtn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}<span class="chevron">▾</span>`;
-    groupBtn.addEventListener('click', () => toggleExpanded(group.key));
-
-    row.appendChild(groupBtn);
-    el.appendChild(row);
-
-    const children = document.createElement('div');
-    children.className = 'mood-children' + (expanded ? ' open' : '');
-
-    // "Allgemein" entspricht der Auswahl des Grundgefühls selbst, ohne weiter zu spezifizieren.
-    const generalBtn = document.createElement('button');
-    generalBtn.className = 'mood-btn child general' + (selectedKeys.has(group.key) ? ' selected' : '');
-    generalBtn.style.setProperty('--mood-color', group.color);
-    generalBtn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label} – allgemein`;
-    generalBtn.addEventListener('click', () => toggleSelection(group.key));
-    children.appendChild(generalBtn);
-
-    group.children.forEach(child => {
-      const childBtn = document.createElement('button');
-      childBtn.className = 'mood-btn child' + (selectedKeys.has(child.key) ? ' selected' : '');
-      childBtn.style.setProperty('--mood-color', group.color);
-      childBtn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${child.label}`;
-      childBtn.addEventListener('click', () => toggleSelection(child.key));
-      children.appendChild(childBtn);
-    });
-    el.appendChild(children);
+    const btn = document.createElement('button');
+    btn.className = 'mood-pill' + (selectedKeys.has(group.key) ? ' selected' : '');
+    btn.style.setProperty('--mood-color', group.color);
+    btn.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}`;
+    btn.addEventListener('click', () => toggleGroupSelection(group.key));
+    mainEl.appendChild(btn);
   });
+
+  const activeGroups = MOODS.filter(g => selectedKeys.has(g.key));
+  refineEl.classList.toggle('open', activeGroups.length > 0);
+
+  if (activeGroups.length > 0) {
+    const heading = document.createElement('div');
+    heading.className = 'refine-heading';
+    heading.textContent = 'Genauer? (optional)';
+    refineEl.appendChild(heading);
+
+    activeGroups.forEach(group => {
+      const row = document.createElement('div');
+      row.className = 'refine-group';
+
+      const label = document.createElement('span');
+      label.className = 'refine-group-label';
+      label.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}`;
+      row.appendChild(label);
+
+      group.children.forEach(child => {
+        const childBtn = document.createElement('button');
+        childBtn.className = 'mood-pill child' + (selectedKeys.has(child.key) ? ' selected' : '');
+        childBtn.style.setProperty('--mood-color', group.color);
+        childBtn.textContent = child.label;
+        childBtn.addEventListener('click', () => toggleSelection(child.key));
+        row.appendChild(childBtn);
+      });
+
+      refineEl.appendChild(row);
+    });
+  }
+}
+
+function toggleGroupSelection(key) {
+  if (selectedKeys.has(key)) {
+    selectedKeys.delete(key);
+    // Verfeinerungsliste verschwindet mit der Gruppe, also auch deren Unterkategorien abwählen.
+    const group = MOODS.find(g => g.key === key);
+    group.children.forEach(c => selectedKeys.delete(c.key));
+  } else {
+    selectedKeys.add(key);
+  }
+  renderMoodGroups();
+  updateSky();
+  updateButtons();
 }
 
 function toggleSelection(key) {
@@ -92,12 +110,6 @@ function toggleSelection(key) {
   renderMoodGroups();
   updateSky();
   updateButtons();
-}
-
-function toggleExpanded(groupKey) {
-  if (expandedGroups.has(groupKey)) expandedGroups.delete(groupKey);
-  else expandedGroups.add(groupKey);
-  renderMoodGroups();
 }
 
 function selectedMoodChips() {
@@ -322,7 +334,6 @@ function resetDraft() {
   $('entryText').value = '';
   $('intensity').value = 3;
   selectedKeys = new Set();
-  expandedGroups = new Set();
   renderMoodGroups();
   updateSky();
   updateButtons();

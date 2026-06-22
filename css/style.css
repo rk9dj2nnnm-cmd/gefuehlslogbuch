@@ -43,8 +43,18 @@ body {
   height: 168px;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: #161B30;
+  background: linear-gradient(120deg, #161B30, #1B2238, #2C355A, #1B2238, #161B30);
+  background-size: 300% 300%;
+  animation: skyDrift 22s ease-in-out infinite;
   margin-bottom: 28px;
+}
+@keyframes skyDrift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky { animation: none; }
 }
 
 .blob {
@@ -104,22 +114,16 @@ label.field-label {
   margin-bottom: 10px;
 }
 
-/* ---------- Mood picker (Grundgefühle + Unterkategorien) ---------- */
-.mood-groups {
+/* ---------- Mood picker (Hauptgefühle als Pills, Unterkategorien als Verfeinerung) ---------- */
+.mood-pills {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.mood-group-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.mood-btn {
-  display: flex;
+.mood-pill {
+  display: inline-flex;
   align-items: center;
   gap: 7px;
   padding: 8px 14px 8px 10px;
@@ -132,18 +136,19 @@ label.field-label {
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
-.mood-btn:hover { color: var(--ink); }
-.mood-btn:focus-visible {
+.mood-pill:hover { color: var(--ink); }
+.mood-pill:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
-.mood-btn.child {
-  font-size: 0.82rem;
-  padding: 7px 12px 7px 9px;
+.mood-pill.child {
+  font-size: 0.8rem;
+  padding: 6px 12px 6px 9px;
 }
-.mood-btn.child.general {
-  font-style: italic;
-  border-style: dashed;
+.mood-pill.selected {
+  border-color: var(--mood-color);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--mood-color) inset;
 }
 .mood-dot {
   width: 11px;
@@ -151,41 +156,40 @@ label.field-label {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.mood-btn.selected {
-  border-color: var(--mood-color);
-  background: var(--bg-card-soft);
-  color: var(--ink);
-  box-shadow: 0 0 0 1px var(--mood-color) inset;
-}
 
-.mood-btn.group {
-  width: 100%;
-  justify-content: flex-start;
-}
-.mood-btn.group .chevron {
-  margin-left: auto;
-  color: var(--ink-faint);
-  font-size: 0.75rem;
-  transition: transform 0.2s, color 0.2s;
-}
-.mood-btn.group:hover .chevron { color: var(--ink); }
-.mood-btn.group.expanded .chevron { transform: rotate(180deg); color: var(--ink); }
-
-.mood-children {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
+.mood-refine {
   max-height: 0;
   overflow: hidden;
   opacity: 0;
-  padding-left: 30px;
   transition: max-height 0.25s ease, opacity 0.2s ease;
 }
-.mood-children.open {
-  max-height: 200px;
+.mood-refine.open {
+  max-height: 500px;
   opacity: 1;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  margin-bottom: 22px;
+}
+
+.refine-heading {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin: 6px 0 8px;
+}
+
+.refine-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.refine-group-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-right: 2px;
 }
 
 /* ---------- Intensity ---------- */
