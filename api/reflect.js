@@ -45,7 +45,7 @@ nachfragen.`;
 
   try {
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,7 +56,7 @@ nachfragen.`;
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();
       console.error('Gemini-Fehler', errText);
-      res.status(502).json({ error: 'KI-Reflexion ist fehlgeschlagen.', debug: errText });
+      res.status(502).json({ error: 'KI-Reflexion ist fehlgeschlagen.' });
       return;
     }
 
