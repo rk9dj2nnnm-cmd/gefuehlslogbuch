@@ -1,7 +1,23 @@
 let entries = [];
 let selectedKeys = new Set(); // ausgewählte Grund- und/oder Unterkategorien
-let expandedEntryIds = new Set(); // welche Einträge voll ausgeklappt sind
-const RECENT_EXPANDED_COUNT = 4;
+let expandedEntryIds = new Set(); // welche älteren Einträge zusätzlich aufgeklappt sind
+let selectedIntensity = 3;
+
+function renderIntensityDots() {
+  const el = $('intensityDots');
+  el.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'intensity-dot' + (i <= selectedIntensity ? ' filled' : '');
+    dot.setAttribute('aria-label', `Intensität ${i} von 5`);
+    dot.addEventListener('click', () => {
+      selectedIntensity = i;
+      renderIntensityDots();
+    });
+    el.appendChild(dot);
+  }
+}
 
 const $ = (id) => document.getElementById(id);
 
@@ -46,6 +62,7 @@ function updateSky() {
 
 /* ---------- Mood-Auswahl (Hauptgefühle als Icon-Kreise, Unterkategorien als Verfeinerung) ---------- */
 const MAX_MAIN_MOODS = 3;
+const MAX_SUB_MOODS_PER_GROUP = 2;
 
 function renderMoodGroups() {
   const mainEl = $('moodMainPills');
@@ -90,11 +107,16 @@ function renderMoodGroups() {
       label.innerHTML = `<span class="mood-dot" style="background:${group.color}"></span>${group.label}`;
       row.appendChild(label);
 
+      const selectedSubCount = group.children.filter((c) => selectedKeys.has(c.key)).length;
+      const subLimitReached = selectedSubCount >= MAX_SUB_MOODS_PER_GROUP;
+
       group.children.forEach(child => {
+        const isChildSelected = selectedKeys.has(child.key);
         const childBtn = document.createElement('button');
-        childBtn.className = 'mood-pill child' + (selectedKeys.has(child.key) ? ' selected' : '');
+        childBtn.className = 'mood-pill child' + (isChildSelected ? ' selected' : '');
         childBtn.style.setProperty('--mood-color', group.color);
         childBtn.textContent = child.label;
+        childBtn.disabled = subLimitReached && !isChildSelected;
         childBtn.addEventListener('click', () => toggleSelection(child.key));
         row.appendChild(childBtn);
       });
@@ -185,6 +207,11 @@ function renderStrip() {
     bar.style.background = chips.length ? chips[0].color : '#888';
     bar.title = formatDate(e.created_at) + ' · ' + chips.map(c => c.label).join(', ');
     bar.addEventListener('click', () => {
+      const isLatest = entries.length > 0 && e.id === entries[entries.length - 1].id;
+      if (isLatest) {
+        document.querySelector('.current-entry-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
       expandedEntryIds.add(e.id);
       renderEntries();
       const target = document.getElementById('entry-' + e.id);
@@ -194,40 +221,56 @@ function renderStrip() {
   });
 }
 
+function entryInnerHtml(e, withHideToggle) {
+  const chips = e.moods || [];
+  const moodHtml = chips.map(c => `<span><span class="mood-dot" style="background:${c.color}"></span>${c.label}</span>`).join(' · ');
+  const hideBtn = withHideToggle ? `<button class="ghost entry-toggle" data-id="${e.id}">▾ Ausblenden</button>` : '';
+  return `
+    <div class="entry-head">
+      <span class="entry-mood">${moodHtml}</span>
+      <span class="entry-date">${formatDate(e.created_at)}</span>
+    </div>
+    <p class="entry-text">${escapeHtml(e.text)}</p>
+    ${hideBtn}
+    <div class="reflection-box" id="reflection-${e.id}">
+      <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
+    </div>
+  `;
+}
+
+function renderCurrentEntry() {
+  const box = $('currentEntryBox');
+  if (entries.length === 0) {
+    box.innerHTML = '<p class="empty-state">Noch keine Einträge. Dein erster Eintrag erscheint hier, sobald du ihn speicherst.</p>';
+    return;
+  }
+  const e = entries[entries.length - 1];
+  box.innerHTML = entryInnerHtml(e, false);
+  renderReflectionBox(e.id);
+}
+
 function renderEntries() {
   const list = $('entriesList');
-  if (entries.length === 0) {
-    list.innerHTML = '<p class="empty-state">Noch keine Einträge. Dein erster Eintrag erscheint hier, sobald du ihn speicherst.</p>';
+  const olderEntries = entries.slice(0, -1); // alle außer dem aktuellsten Eintrag
+
+  if (olderEntries.length === 0) {
+    list.innerHTML = '<p class="empty-state">Noch keine älteren Einträge.</p>';
     return;
   }
 
-  const visible = [...entries].reverse().filter((e) => expandedEntryIds.has(e.id));
+  const visible = [...olderEntries].reverse().filter((e) => expandedEntryIds.has(e.id));
 
   if (visible.length === 0) {
-    list.innerHTML = '<p class="empty-state">Tipp auf einen Balken im Emotionswetter oben, um einen Eintrag zu sehen.</p>';
+    list.innerHTML = '<p class="empty-state">Tipp auf einen Balken im Emotionswetter oben, um einen älteren Eintrag zu sehen.</p>';
     return;
   }
 
   list.innerHTML = '';
   visible.forEach((e) => {
-    const chips = e.moods || [];
     const card = document.createElement('div');
     card.className = 'entry';
     card.id = 'entry-' + e.id;
-
-    const moodHtml = chips.map(c => `<span><span class="mood-dot" style="background:${c.color}"></span>${c.label}</span>`).join(' · ');
-
-    card.innerHTML = `
-      <div class="entry-head">
-        <span class="entry-mood">${moodHtml}</span>
-        <span class="entry-date">${formatDate(e.created_at)}</span>
-      </div>
-      <p class="entry-text">${escapeHtml(e.text)}</p>
-      <button class="ghost entry-toggle" data-id="${e.id}">▾ Ausblenden</button>
-      <div class="reflection-box" id="reflection-${e.id}">
-        <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
-      </div>
-    `;
+    card.innerHTML = entryInnerHtml(e, true);
     list.appendChild(card);
   });
 
@@ -358,13 +401,12 @@ function escapeHtml(str) {
 async function saveEntry() {
   const text = $('entryText').value.trim();
   if (selectedKeys.size === 0 || !text) return;
-  const intensity = parseInt($('intensity').value, 10);
 
   $('saveBtn').disabled = true;
 
   const { data, error } = await supabaseClient
     .from('entries')
-    .insert({ moods: selectedMoodChips(), intensity, text })
+    .insert({ moods: selectedMoodChips(), intensity: selectedIntensity, text })
     .select()
     .single();
 
@@ -375,9 +417,9 @@ async function saveEntry() {
   }
 
   entries.push(data);
-  expandedEntryIds.add(data.id);
   resetDraft();
   renderStrip();
+  renderCurrentEntry();
   renderEntries();
   updateOverviewButton();
   startReflection(data);
@@ -385,7 +427,8 @@ async function saveEntry() {
 
 function resetDraft() {
   $('entryText').value = '';
-  $('intensity').value = 3;
+  selectedIntensity = 3;
+  renderIntensityDots();
   selectedKeys = new Set();
   renderMoodGroups();
   updateSky();
@@ -402,9 +445,10 @@ async function init() {
   $('todayLabel').textContent = todayLabel();
   createSkyBlobs();
   renderMoodGroups();
+  renderIntensityDots();
   entries = await loadEntries();
-  entries.slice(-RECENT_EXPANDED_COUNT).forEach((e) => expandedEntryIds.add(e.id));
   renderStrip();
+  renderCurrentEntry();
   renderEntries();
   updateOverviewButton();
 

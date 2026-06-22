@@ -8,6 +8,8 @@
 </head>
 <body>
 
+<div class="page-bubbles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
 <div class="wrap">
 
   <div class="topbar">
@@ -32,7 +34,7 @@
 
     <div class="intensity-row">
       <label class="field-label">Wie stark insgesamt?</label>
-      <input type="range" id="intensity" min="1" max="5" value="3" />
+      <div class="intensity-dots" id="intensityDots"></div>
       <div class="intensity-labels"><span>kaum spürbar</span><span>überwältigend</span></div>
     </div>
 
@@ -46,9 +48,14 @@
     </div>
   </div>
 
+  <div class="card current-entry-card">
+    <h2 class="section-title">Dein aktueller Eintrag</h2>
+    <div id="currentEntryBox"></div>
+  </div>
+
   <div class="card">
     <h2 class="section-title">Emotionswetter</h2>
-    <p class="field-label">Tipp auf einen Balken, um den Eintrag von dem Tag zu sehen.</p>
+    <p class="field-label">Tipp auf einen Balken, um einen älteren Eintrag zu sehen.</p>
     <div class="strip" id="strip"></div>
     <div id="entriesList"></div>
   </div>
