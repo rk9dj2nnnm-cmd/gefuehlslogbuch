@@ -80,7 +80,7 @@ function renderMoodGroups() {
     btn.className = 'mood-circle' + (isSelected ? ' selected' : '');
     btn.style.setProperty('--mood-color', group.color);
     btn.setAttribute('aria-label', group.label);
-    btn.textContent = group.emoji;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${group.icon}</svg>`;
     btn.disabled = limitReached && !isSelected;
     btn.addEventListener('click', () => toggleGroupSelection(group.key));
     mainEl.appendChild(btn);

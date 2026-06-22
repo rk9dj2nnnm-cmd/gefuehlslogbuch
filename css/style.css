@@ -257,10 +257,12 @@ label.field-label {
   font-size: 1.15rem;
   line-height: 1;
   background: var(--mood-color);
+  color: var(--ink);
   opacity: 0.45;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
 }
+.mood-circle svg { display: block; }
 .mood-circle:hover { opacity: 0.7; }
 .mood-circle.selected {
   opacity: 1;

@@ -7,7 +7,7 @@ const MOODS = [
     key: 'freude',
     label: 'Freude',
     color: '#E8A33D',
-    emoji: '😄',
+    icon: '<path d="M6 15 L12 9 L18 15"/>',
     children: [
       { key: 'begeisterung', label: 'Begeisterung' },
       { key: 'dankbarkeit', label: 'Dankbarkeit' },
@@ -20,7 +20,7 @@ const MOODS = [
     key: 'traurigkeit',
     label: 'Traurigkeit',
     color: '#6B7FE0',
-    emoji: '😢',
+    icon: '<path d="M6 9 L12 15 L18 9"/>',
     children: [
       { key: 'enttaeuschung', label: 'Enttäuschung' },
       { key: 'einsamkeit', label: 'Einsamkeit' },
@@ -32,7 +32,7 @@ const MOODS = [
     key: 'wut',
     label: 'Wut',
     color: '#C1604A',
-    emoji: '😠',
+    icon: '<path d="M13 4 L8 13 H12 L10 20 L17 10 H12 L13 4 Z" fill="currentColor" stroke="none"/>',
     children: [
       { key: 'frustration', label: 'Frustration' },
       { key: 'genervtheit', label: 'Genervtheit' },
@@ -44,7 +44,7 @@ const MOODS = [
     key: 'angst',
     label: 'Angst',
     color: '#9A86C9',
-    emoji: '😬',
+    icon: '<path d="M4 12 Q7 6 10 12 T16 12 T22 12"/>',
     children: [
       { key: 'sorge', label: 'Sorge' },
       { key: 'nervositaet', label: 'Nervosität' },
@@ -56,7 +56,7 @@ const MOODS = [
     key: 'ekel',
     label: 'Ekel',
     color: '#7C9A5C',
-    emoji: '🤢',
+    icon: '<path d="M5 9 L10 15 L14 9 L19 15"/>',
     children: [
       { key: 'abneigung', label: 'Abneigung' },
       { key: 'widerwillen', label: 'Widerwillen' },
@@ -67,7 +67,7 @@ const MOODS = [
     key: 'ueberraschung',
     label: 'Überraschung',
     color: '#D9C45C',
-    emoji: '😲',
+    icon: '<path d="M12 4 V20 M5 8 L19 16 M19 8 L5 16"/>',
     children: [
       { key: 'verwirrung', label: 'Verwirrung' },
       { key: 'erstaunen', label: 'Erstaunen' },
@@ -78,7 +78,7 @@ const MOODS = [
     key: 'scham',
     label: 'Scham',
     color: '#B5708C',
-    emoji: '😳',
+    icon: '<path d="M6 8 Q12 18 18 8"/>',
     children: [
       { key: 'verlegenheit', label: 'Verlegenheit' },
       { key: 'schuldgefuehl', label: 'Schuldgefühl' },
@@ -90,7 +90,7 @@ const MOODS = [
     key: 'leere',
     label: 'Leere',
     color: '#9C968A',
-    emoji: '😶',
+    icon: '<circle cx="12" cy="12" r="7"/>',
     children: [
       { key: 'erschoepfung', label: 'Erschöpfung' },
       { key: 'gleichgueltigkeit', label: 'Gleichgültigkeit' },
