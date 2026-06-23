@@ -34,11 +34,13 @@ Hier sind die Einträge eines Menschen, älteste zuerst:
 ${list}
 
 Schau dir das Gesamtbild an: Gibt es wiederkehrende Gefühle, Muster oder Veränderungen
-über die Zeit? Schreibe eine kurze, warme Beobachtung auf Deutsch (4-6 Sätze) dazu.
-Keine Diagnosen und keine Ratschläge wie ein Therapeut, sondern spiegle einfühlsam
-zurück, was du siehst. Stelle am Ende eine offene, nicht wertende Rückfrage. Falls
-sich daraus ein Gespräch entwickelt, bleib in dieser Rolle: zuhören, einfühlsam
-spiegeln, behutsam nachfragen.`;
+über die Zeit? Schreibe eine kurze, warme Beobachtung auf Deutsch (4-6 Sätze) dazu, ohne
+die einzelnen Gefühle nur aufzuzählen oder zu wiederholen. Keine Diagnosen und keine
+Ratschläge wie ein Therapeut. Stelle am Ende eine einzige, konkrete Rückfrage, die näher
+an die Ursache oder das Muster hinter dem Gesehenen herangeht (z.B. nach einem
+wiederkehrenden Auslöser, einer bestimmten Lebenssituation oder dem, was sich die Person
+gerade wünscht) — variiere die Art der Frage. Falls sich daraus ein Gespräch entwickelt,
+bleib in dieser Rolle: zuhören, knapp und ohne Wiederholungen spiegeln, gezielt nachfragen.`;
     contents = [{ role: 'user', parts: [{ text: prompt }] }];
   } else {
     // Erste Reflexion zu einem einzelnen Eintrag
@@ -54,11 +56,15 @@ Gefühle: ${moodLabels || 'keine Angabe'}
 Intensität: ${entry.intensity || '?'}/5
 Text: "${entry.text}"
 
-Schreibe eine kurze, warme Reflexion auf Deutsch (3-5 Sätze). Stelle am Ende eine
-offene, nicht wertende Rückfrage. Gib keine Diagnosen und keine Ratschläge wie ein
-Therapeut, sondern spiegle einfühlsam zurück, was du liest. Falls sich daraus ein
-Gespräch entwickelt, bleib in dieser Rolle: zuhören, einfühlsam spiegeln, behutsam
-nachfragen.`;
+Schreibe eine kurze, warme Reflexion auf Deutsch (3-5 Sätze). Wiederhole die genannten
+Gefühle nicht wörtlich und fasse sie nicht nur zusammen, sondern geh konkret auf das ein,
+was im Text steht. Stelle am Ende eine einzige, konkrete Rückfrage, die näher an die
+Ursache oder das Bedürfnis hinter dem Gefühl herangeht (z.B. nach dem Auslöser, einer
+bestimmten Situation, einem Gedanken dahinter oder dem, was die Person sich jetzt
+wünscht) — variiere die Art der Frage, statt immer demselben Muster zu folgen. Gib
+keine Diagnosen und keine Ratschläge wie ein Therapeut, sondern bleib neugierig und
+nicht wertend. Falls sich daraus ein Gespräch entwickelt, bleib in dieser Rolle:
+zuhören, knapp und ohne Wiederholungen spiegeln, gezielt nachfragen.`;
     contents = [{ role: 'user', parts: [{ text: prompt }] }];
   }
 
