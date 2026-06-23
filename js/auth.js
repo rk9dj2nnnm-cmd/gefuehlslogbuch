@@ -80,12 +80,12 @@ function initAuthPage() {
       if (mode === 'login') {
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        window.location.href = 'app.html';
+        window.location.href = '/app';
       } else {
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
         if (error) throw error;
         if (data.session) {
-          window.location.href = 'app.html';
+          window.location.href = '/app';
         } else if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
           // Supabase gibt aus Sicherheitsgründen (kein E-Mail-Enumeration-Leak) keinen Fehler zurück,
           // wenn die E-Mail schon ein bestätigtes Konto hat – stattdessen eine leere identities-Liste.
@@ -105,7 +105,7 @@ function initAuthPage() {
 
   // Schon eingeloggt? Direkt weiter zur App.
   supabaseClient.auth.getSession().then(({ data }) => {
-    if (data.session) window.location.href = 'app.html';
+    if (data.session) window.location.href = '/app';
   });
 }
 
@@ -116,7 +116,7 @@ function initAppAuthGuard() {
 
   window.authReady = supabaseClient.auth.getSession().then(({ data }) => {
     if (!data.session) {
-      window.location.href = 'index.html';
+      window.location.href = '/';
       return null;
     }
     userEmailEl.textContent = data.session.user.email;
@@ -125,7 +125,7 @@ function initAppAuthGuard() {
 
   logoutBtn.addEventListener('click', async () => {
     await supabaseClient.auth.signOut();
-    window.location.href = 'index.html';
+    window.location.href = '/';
   });
 }
 
