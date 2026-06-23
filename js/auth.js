@@ -43,6 +43,11 @@ function initAuthPage() {
         if (error) throw error;
         if (data.session) {
           window.location.href = 'app.html';
+        } else if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          // Supabase gibt aus Sicherheitsgründen (kein E-Mail-Enumeration-Leak) keinen Fehler zurück,
+          // wenn die E-Mail schon ein bestätigtes Konto hat – stattdessen eine leere identities-Liste.
+          setMode('login');
+          errorMsg.textContent = 'Für diese E-Mail existiert bereits ein Konto. Bitte melde dich an.';
         } else {
           setMode('login');
           hintMsg.textContent = 'Fast geschafft: Bitte bestätige deine E-Mail-Adresse über den Link, den wir dir geschickt haben, und melde dich danach an.';
