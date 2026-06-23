@@ -591,6 +591,29 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 }
 .strip-bar:hover { opacity: 1; transform: translateY(-2px); }
 
+.easter-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  max-width: 90vw;
+  background: var(--bg-card-soft);
+  color: var(--ink);
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.easter-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ---------- Dashboard ---------- */
 .dash-stats-row {
   display: flex;

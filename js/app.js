@@ -2,6 +2,18 @@ let entries = [];
 let selectedKeys = new Set(); // ausgewählte Grund- und/oder Unterkategorien
 let openHistoryEntryId = null; // welcher ältere Eintrag aktuell aufgeklappt ist (immer nur einer)
 let selectedIntensity = 3;
+let easterEggShown = false;
+
+function checkEasterEgg(text) {
+  if (easterEggShown) return;
+  if (text.toLowerCase().includes('schatzkiste')) {
+    easterEggShown = true;
+    const toast = $('easterEggToast');
+    toast.textContent = '💎 Du hast eine Schatzkiste gefunden! Manchmal stecken die schönsten Funde in ganz normalen Worten.';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4500);
+  }
+}
 
 function renderIntensityDots() {
   const el = $('intensityDots');
@@ -239,7 +251,7 @@ function entryHeadHtml(e) {
 function currentEntryInnerHtml(e) {
   return entryHeadHtml(e) + `
     <div class="reflection-box" id="reflection-${e.id}">
-      <button class="ghost reflect-btn" data-id="${e.id}">🌊 Auf den Grund gehen</button>
+      <button class="ghost reflect-btn" data-id="${e.id}">🌊 Abtauchen</button>
     </div>
   `;
 }
@@ -311,7 +323,7 @@ function renderReflectionBox(entryId) {
   box.classList.toggle('active', !!convo);
 
   if (!convo) {
-    box.innerHTML = `<button class="ghost reflect-btn" data-id="${entryId}">🌊 Auf den Grund gehen</button>`;
+    box.innerHTML = `<button class="ghost reflect-btn" data-id="${entryId}">🌊 Abtauchen</button>`;
     return;
   }
 
@@ -352,7 +364,7 @@ async function startReflection(entry) {
     conversations[entry.id].messages.push({ role: 'model', text: data.reply });
   } catch (err) {
     console.error(err);
-    conversations[entry.id].messages.push({ role: 'model', text: 'Konnte gerade nicht auf den Grund gehen. Versuch es nochmal.' });
+    conversations[entry.id].messages.push({ role: 'model', text: 'Konnte gerade nicht abtauchen. Versuch es nochmal.' });
   } finally {
     conversations[entry.id].loading = false;
     renderReflectionBox(entry.id);
@@ -387,7 +399,7 @@ async function startOverviewReflection() {
     conversations.overview.messages.push({ role: 'model', text: data.reply });
   } catch (err) {
     console.error(err);
-    conversations.overview.messages.push({ role: 'model', text: 'Konnte gerade nicht auf den Grund gehen. Versuch es nochmal.' });
+    conversations.overview.messages.push({ role: 'model', text: 'Konnte gerade nicht abtauchen. Versuch es nochmal.' });
   } finally {
     conversations.overview.loading = false;
     renderReflectionBox('overview');
@@ -457,6 +469,7 @@ async function saveEntry() {
 
 function resetDraft() {
   $('entryText').value = '';
+  easterEggShown = false;
   selectedIntensity = 3;
   renderIntensityDots();
   selectedKeys = new Set();
@@ -546,7 +559,10 @@ async function init() {
   updateOverviewButton();
   renderDashboard();
 
-  $('entryText').addEventListener('input', updateButtons);
+  $('entryText').addEventListener('input', () => {
+    updateButtons();
+    checkEasterEgg($('entryText').value);
+  });
   $('saveBtn').addEventListener('click', saveEntry);
   $('overviewBtn').addEventListener('click', startOverviewReflection);
 
