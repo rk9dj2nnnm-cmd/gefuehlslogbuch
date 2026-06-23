@@ -2,8 +2,8 @@
 
 :root {
   --bg-deep: #1B2238;
-  --bg-card: #242C4A;
-  --bg-card-soft: #2C355A;
+  --bg-card: #2A3355;
+  --bg-card-soft: #333D63;
   --ink: #EDEAE3;
   --ink-soft: #ACB0C8;
   --ink-faint: #767C9C;
@@ -212,8 +212,8 @@ body {
 .card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 22px;
-  margin-bottom: 18px;
+  padding: 28px;
+  margin-bottom: 26px;
 }
 
 .current-entry-card {
@@ -236,15 +236,15 @@ label.field-label {
   display: block;
   font-size: 0.82rem;
   color: var(--ink-soft);
-  margin-bottom: 10px;
+  margin-bottom: 13px;
 }
 
 /* ---------- Mood picker (Hauptgefühle als Icon-Kreise, Unterkategorien als Verfeinerung) ---------- */
 .mood-circles {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 10px;
+  gap: 16px;
+  margin-bottom: 14px;
 }
 
 .mood-circle {
@@ -424,7 +424,7 @@ label.field-label {
 
 /* ---------- Intensity ---------- */
 .intensity-row {
-  margin-bottom: 22px;
+  margin-bottom: 28px;
 }
 .intensity-dots {
   display: flex;
@@ -535,14 +535,14 @@ textarea::placeholder, input::placeholder { color: var(--ink-faint); }
   font-size: 0.76rem;
   color: var(--ink-faint);
   line-height: 1.5;
-  margin: 10px 0 0;
+  margin: 16px 0 0;
 }
 
 /* ---------- Buttons ---------- */
 .btn-row {
   display: flex;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 22px;
   flex-wrap: wrap;
 }
 
