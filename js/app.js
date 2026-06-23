@@ -493,17 +493,6 @@ function currentStreak() {
   return streak;
 }
 
-function weeklyCounts(weeks) {
-  const buckets = new Array(weeks).fill(0);
-  const now = new Date();
-  entries.forEach((e) => {
-    const diffDays = Math.floor((now - new Date(e.created_at)) / (1000 * 60 * 60 * 24));
-    const weekIndex = Math.floor(diffDays / 7);
-    if (weekIndex >= 0 && weekIndex < weeks) buckets[weeks - 1 - weekIndex]++;
-  });
-  return buckets;
-}
-
 function renderDashboard() {
   const empty = $('dashboardEmpty');
   const content = $('dashboardContent');
@@ -516,7 +505,6 @@ function renderDashboard() {
 
   const streak = currentStreak();
   const freq = moodFrequency();
-  const weekly = weeklyCounts(8);
   const maxFreq = freq.length ? freq[0][1] : 1;
 
   const freqHtml = freq.slice(0, 5).map(([label, count]) => {
@@ -531,19 +519,12 @@ function renderDashboard() {
       </div>`;
   }).join('');
 
-  const weeklyHtml = weekly.map((count) => {
-    const h = 6 + count * 10;
-    return `<div class="dash-week-bar" style="height:${h}px;" title="${count} Eintrag/Einträge"></div>`;
-  }).join('');
-
   content.innerHTML = `
     <div class="dash-stats-row">
       <div class="dash-stat"><strong>${entries.length}</strong><span>Einträge insgesamt</span></div>
       <div class="dash-stat"><strong>${streak}</strong><span>${streak === 1 ? 'Tag in Folge' : 'Tage in Folge'}</span></div>
     </div>
     ${freqHtml ? `<div class="dash-section-label">Häufigste Gefühle</div><div class="dash-freq-list">${freqHtml}</div>` : ''}
-    <div class="dash-section-label">Letzte 8 Wochen</div>
-    <div class="dash-week-strip">${weeklyHtml}</div>
   `;
 }
 
