@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
 <title>Gefühlstaucher – Anmelden</title>
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -14,43 +15,62 @@
 
 <div class="wrap">
 
-  <div class="sky">
-    <div class="sky-content">
-      <div class="sky-date">Gefühlstaucher</div>
-      <div class="sky-sub">Melde dich an, um deine Einträge zu sehen.</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="auth-toggle">
-      <button class="ghost active" id="tabLogin" type="button">Anmelden</button>
-      <button class="ghost" id="tabRegister" type="button">Registrieren</button>
-    </div>
-
-    <h2 class="section-title" id="authTitle">Willkommen zurück</h2>
-
-    <form id="authForm">
+  <div class="card" id="accessGate">
+    <h2 class="section-title">Gefühlstaucher</h2>
+    <p class="field-label">Diese App ist gerade nur auf Einladung. Hast du einen Zugangscode bekommen?</p>
+    <form id="gateForm">
       <div class="field-group">
-        <label class="field-label" for="email">E-Mail</label>
-        <input type="email" id="email" autocomplete="email" required />
+        <label class="field-label" for="gateCode">Zugangscode</label>
+        <input type="text" id="gateCode" autocomplete="off" required />
       </div>
-      <div class="field-group">
-        <label class="field-label" for="password">Passwort</label>
-        <input type="password" id="password" autocomplete="current-password" minlength="6" required />
-      </div>
-
       <div class="btn-row">
-        <button class="primary" type="submit" id="submitBtn">Anmelden</button>
+        <button class="primary" type="submit">Weiter</button>
       </div>
-
-      <div class="error-msg" id="errorMsg"></div>
-      <div class="hint-msg" id="hintMsg"></div>
+      <div class="error-msg" id="gateError"></div>
     </form>
   </div>
 
-  <footer class="note">
-    Dieses Logbuch hilft dir, eigene Gefühle besser zu verstehen. Bei akuten Krisen wende dich bitte an eine Fachperson oder jemanden, dem du vertraust.
-  </footer>
+  <div id="authSection" style="display:none">
+
+    <div class="sky">
+      <div class="sky-content">
+        <div class="sky-date">Gefühlstaucher</div>
+        <div class="sky-sub">Melde dich an, um deine Einträge zu sehen.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="auth-toggle">
+        <button class="ghost active" id="tabLogin" type="button">Anmelden</button>
+        <button class="ghost" id="tabRegister" type="button">Registrieren</button>
+      </div>
+
+      <h2 class="section-title" id="authTitle">Willkommen zurück</h2>
+
+      <form id="authForm">
+        <div class="field-group">
+          <label class="field-label" for="email">E-Mail</label>
+          <input type="email" id="email" autocomplete="email" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="password">Passwort</label>
+          <input type="password" id="password" autocomplete="current-password" minlength="6" required />
+        </div>
+
+        <div class="btn-row">
+          <button class="primary" type="submit" id="submitBtn">Anmelden</button>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="hint-msg" id="hintMsg"></div>
+      </form>
+    </div>
+
+    <footer class="note">
+      Dieses Logbuch hilft dir, eigene Gefühle besser zu verstehen. Bei akuten Krisen wende dich bitte an eine Fachperson oder jemanden, dem du vertraust.
+    </footer>
+
+  </div>
 
 </div>
 

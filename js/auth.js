@@ -1,3 +1,28 @@
+/* ---------- Zugangscode-Hürde (index.html) ---------- */
+function initAccessGate() {
+  const ACCESS_CODE = 'TAUCHGANG';
+  const gate = $a('accessGate');
+  const authSection = $a('authSection');
+
+  if (localStorage.getItem('gefuehlstaucher_gate') === 'passed') {
+    gate.style.display = 'none';
+    authSection.style.display = '';
+    return;
+  }
+
+  $a('gateForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = $a('gateCode');
+    if (input.value.trim().toUpperCase() === ACCESS_CODE) {
+      localStorage.setItem('gefuehlstaucher_gate', 'passed');
+      gate.style.display = 'none';
+      authSection.style.display = '';
+    } else {
+      $a('gateError').textContent = 'Falscher Code.';
+    }
+  });
+}
+
 /* ---------- Login/Registrierung (index.html) ---------- */
 function initAuthPage() {
   const form = $a('authForm');
@@ -96,6 +121,7 @@ function translateAuthError(message) {
 function $a(id) { return document.getElementById(id); }
 
 if (document.getElementById('authForm')) {
+  initAccessGate();
   initAuthPage();
 } else if (document.getElementById('logoutBtn')) {
   initAppAuthGuard();
