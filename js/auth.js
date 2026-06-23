@@ -1,6 +1,5 @@
 /* ---------- Zugangscode-Hürde (index.html) ---------- */
 function initAccessGate() {
-  const ACCESS_CODE = 'TAUCHGANG';
   const gate = $a('accessGate');
   const authSection = $a('authSection');
 
@@ -10,15 +9,34 @@ function initAccessGate() {
     return;
   }
 
-  $a('gateForm').addEventListener('submit', (e) => {
+  const gateForm = $a('gateForm');
+  const gateSubmitBtn = gateForm.querySelector('button[type="submit"]');
+
+  gateForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const input = $a('gateCode');
-    if (input.value.trim().toUpperCase() === ACCESS_CODE) {
-      localStorage.setItem('gefuehlstaucher_gate', 'passed');
-      gate.style.display = 'none';
-      authSection.style.display = '';
-    } else {
-      $a('gateError').textContent = 'Falscher Code.';
+    const errorEl = $a('gateError');
+    errorEl.textContent = '';
+    gateSubmitBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/check-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: input.value })
+      });
+      const data = await res.json();
+      if (data.valid) {
+        localStorage.setItem('gefuehlstaucher_gate', 'passed');
+        gate.style.display = 'none';
+        authSection.style.display = '';
+      } else {
+        errorEl.textContent = 'Falscher Code.';
+      }
+    } catch (err) {
+      errorEl.textContent = 'Prüfung gerade nicht möglich. Versuch es nochmal.';
+    } finally {
+      gateSubmitBtn.disabled = false;
     }
   });
 }
