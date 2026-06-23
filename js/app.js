@@ -451,6 +451,7 @@ async function saveEntry() {
   renderCurrentEntry();
   renderEntries();
   updateOverviewButton();
+  renderDashboard();
   startReflection(data);
 }
 
@@ -462,6 +463,88 @@ function resetDraft() {
   renderMoodGroups();
   updateSky();
   updateButtons();
+}
+
+/* ---------- Dashboard: einfache Statistiken über alle Einträge ---------- */
+function moodFrequency() {
+  const counts = {};
+  entries.forEach((e) => {
+    (e.moods || []).forEach((c) => {
+      const isMainGroup = MOODS.some((g) => g.label === c.label);
+      if (isMainGroup) counts[c.label] = (counts[c.label] || 0) + 1;
+    });
+  });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+}
+
+function currentStreak() {
+  if (entries.length === 0) return 0;
+  const days = new Set(entries.map((e) => new Date(e.created_at).toDateString()));
+  const cursor = new Date();
+  if (!days.has(cursor.toDateString())) {
+    cursor.setDate(cursor.getDate() - 1);
+    if (!days.has(cursor.toDateString())) return 0;
+  }
+  let streak = 0;
+  while (days.has(cursor.toDateString())) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+function weeklyCounts(weeks) {
+  const buckets = new Array(weeks).fill(0);
+  const now = new Date();
+  entries.forEach((e) => {
+    const diffDays = Math.floor((now - new Date(e.created_at)) / (1000 * 60 * 60 * 24));
+    const weekIndex = Math.floor(diffDays / 7);
+    if (weekIndex >= 0 && weekIndex < weeks) buckets[weeks - 1 - weekIndex]++;
+  });
+  return buckets;
+}
+
+function renderDashboard() {
+  const empty = $('dashboardEmpty');
+  const content = $('dashboardContent');
+  if (entries.length === 0) {
+    empty.style.display = '';
+    content.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const streak = currentStreak();
+  const freq = moodFrequency();
+  const weekly = weeklyCounts(8);
+  const maxFreq = freq.length ? freq[0][1] : 1;
+
+  const freqHtml = freq.slice(0, 5).map(([label, count]) => {
+    const node = MOODS.find((g) => g.label === label);
+    const color = node ? node.color : '#888';
+    const pct = Math.round((count / maxFreq) * 100);
+    return `
+      <div class="dash-freq-row">
+        <span class="dash-freq-label">${escapeHtml(label)}</span>
+        <div class="dash-freq-bar"><div class="dash-freq-fill" style="width:${pct}%; background:${color};"></div></div>
+        <span class="dash-freq-count">${count}</span>
+      </div>`;
+  }).join('');
+
+  const weeklyHtml = weekly.map((count) => {
+    const h = 6 + count * 10;
+    return `<div class="dash-week-bar" style="height:${h}px;" title="${count} Eintrag/Einträge"></div>`;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="dash-stats-row">
+      <div class="dash-stat"><strong>${entries.length}</strong><span>Einträge insgesamt</span></div>
+      <div class="dash-stat"><strong>${streak}</strong><span>${streak === 1 ? 'Tag in Folge' : 'Tage in Folge'}</span></div>
+    </div>
+    ${freqHtml ? `<div class="dash-section-label">Häufigste Gefühle</div><div class="dash-freq-list">${freqHtml}</div>` : ''}
+    <div class="dash-section-label">Letzte 8 Wochen</div>
+    <div class="dash-week-strip">${weeklyHtml}</div>
+  `;
 }
 
 function updateOverviewButton() {
@@ -480,6 +563,7 @@ async function init() {
   renderCurrentEntry();
   renderEntries();
   updateOverviewButton();
+  renderDashboard();
 
   $('entryText').addEventListener('input', updateButtons);
   $('saveBtn').addEventListener('click', saveEntry);
