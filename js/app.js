@@ -382,6 +382,13 @@ async function persistReflection(entryId) {
 }
 
 async function startOverviewReflection() {
+  if (entries.length < 3) {
+    const hint = $('overviewHint');
+    hint.textContent = 'Du brauchst noch mindestens 3 Einträge, um das Gesamtbild zu sehen.';
+    hint.style.color = '#E08585';
+    hint.style.display = '';
+    return;
+  }
   conversations.overview = { messages: [], history: [], loading: true };
   renderReflectionBox('overview');
 
@@ -543,8 +550,10 @@ function renderDashboard() {
 
 function updateOverviewButton() {
   const ready = entries.length >= 3;
-  $('overviewBtn').disabled = !ready;
-  $('overviewHint').style.display = ready ? 'none' : '';
+  const hint = $('overviewHint');
+  hint.style.color = '';
+  hint.textContent = 'Ab 3 Einträgen verfügbar – schau dir an, ob sich Muster über die Zeit zeigen.';
+  hint.style.display = ready ? 'none' : '';
 }
 
 async function init() {
