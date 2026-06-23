@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
       })
       .join('\n');
 
-    const prompt = `Du bist eine einfühlsame, ruhige Reflexionsbegleitung in einem Gefühlslogbuch.
+    const prompt = `Du bist eine einfühlsame, ruhige Reflexionsbegleitung im Gefühlstaucher-Logbuch.
 Hier sind die Einträge eines Menschen, älteste zuerst:
 
 ${list}
@@ -47,7 +47,7 @@ spiegeln, behutsam nachfragen.`;
       return;
     }
     const moodLabels = Array.isArray(entry.moods) ? entry.moods.map((m) => m.label).join(', ') : '';
-    const prompt = `Du bist eine einfühlsame, ruhige Reflexionsbegleitung in einem Gefühlslogbuch.
+    const prompt = `Du bist eine einfühlsame, ruhige Reflexionsbegleitung im Gefühlstaucher-Logbuch.
 Ein Mensch hat folgenden Eintrag geschrieben:
 
 Gefühle: ${moodLabels || 'keine Angabe'}
