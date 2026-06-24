@@ -223,7 +223,7 @@ function renderStrip() {
     bar.addEventListener('click', () => {
       const isLatest = entries.length > 0 && e.id === entries[entries.length - 1].id;
       if (isLatest) {
-        document.querySelector('.current-entry-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        $('currentEntryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
       }
       openHistoryEntryId = openHistoryEntryId === e.id ? null : e.id;
@@ -300,7 +300,7 @@ function renderEntries() {
   const open = olderEntries.find((e) => e.id === openHistoryEntryId);
 
   if (!open) {
-    list.innerHTML = '<p class="empty-state">Tipp auf einen Balken im Emotionswetter oben, um einen älteren Eintrag zu sehen.</p>';
+    list.innerHTML = '<p class="empty-state">Tipp auf einen Balken oben, um einen älteren Eintrag zu sehen.</p>';
     return;
   }
 
