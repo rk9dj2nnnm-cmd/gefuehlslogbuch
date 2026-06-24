@@ -211,6 +211,7 @@ function formatDate(iso) {
 /* ---------- Emotionswetter-Streifen ---------- */
 function renderStrip() {
   const strip = $('strip');
+  strip.style.display = entries.length === 0 ? 'none' : '';
   strip.innerHTML = '';
   entries.forEach(e => {
     const chips = e.moods || [];
@@ -293,6 +294,12 @@ function renderCurrentEntry() {
 function renderEntries() {
   const list = $('entriesList');
   const olderEntries = entries.slice(0, -1); // alle außer dem aktuellsten Eintrag
+
+  if (entries.length === 0) {
+    // Der "Noch keine Einträge"-Hinweis steht schon oben beim aktuellen Eintrag.
+    list.innerHTML = '';
+    return;
+  }
 
   if (olderEntries.length === 0) {
     list.innerHTML = '<p class="empty-state">Noch keine älteren Einträge.</p>';
