@@ -545,6 +545,15 @@ textarea::placeholder, input::placeholder { color: var(--ink-faint); }
   margin-top: 22px;
   flex-wrap: wrap;
 }
+.btn-row-top {
+  margin-top: 0;
+  margin-bottom: 26px;
+  justify-content: center;
+}
+.btn-row-top button.primary {
+  padding: 13px 28px;
+  font-size: 0.95rem;
+}
 
 button.primary, button.ghost {
   font-family: var(--sans);
