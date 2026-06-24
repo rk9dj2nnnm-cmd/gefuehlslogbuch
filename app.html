@@ -27,54 +27,70 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2 class="section-title">Neuer Eintrag</h2>
-
-    <label class="field-label">Welche Gefühle sind gerade da?</label>
-    <div class="mood-circles" id="moodMainPills"></div>
-    <div class="mood-circle-caption" id="moodCaption"></div>
-    <div class="mood-refine" id="moodRefine"></div>
-
-    <div class="intensity-row">
-      <label class="field-label">Wie stark insgesamt?</label>
-      <div class="intensity-dots" id="intensityDots"></div>
-    </div>
-
-    <label class="field-label" for="entryText">Was ist passiert? Was geht dir durch den Kopf?</label>
-    <textarea id="entryText" placeholder="Schreib einfach los, so wie es kommt …"></textarea>
-
-    <p class="privacy-hint">🔒 Deine Einträge sind privat – andere Nutzer haben nie Zugriff darauf.</p>
+  <div id="overviewView">
 
     <div class="btn-row">
-      <button class="primary" id="saveBtn" disabled>Speichern & abtauchen</button>
+      <button class="primary" id="newEntryBtn">+ Neuer Eintrag</button>
     </div>
-  </div>
 
-  <div class="card current-entry-card">
-    <h2 class="section-title" id="currentEntryHeading">Dein aktueller Eintrag</h2>
-    <div id="currentEntryBox"></div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-title">Emotionswetter</h2>
-    <p class="field-label">Tipp auf einen Balken, um einen älteren Eintrag zu sehen.</p>
-    <div class="strip" id="strip"></div>
-    <div id="entriesList"></div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-title">Dashboard</h2>
-    <p class="hint-msg" id="dashboardEmpty">Noch keine Einträge – deine Statistiken erscheinen, sobald du losgelegt hast.</p>
-    <div id="dashboardContent"></div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-title">Gesamtbild</h2>
-    <p class="hint-msg" id="overviewHint">Ab 3 Einträgen verfügbar – schau dir an, ob sich Muster über die Zeit zeigen.</p>
-    <div class="btn-row">
-      <button class="ghost" id="overviewBtn">🌊 Abtauchen – über alle Einträge</button>
+    <div class="card current-entry-card">
+      <h2 class="section-title" id="currentEntryHeading">Dein aktueller Eintrag</h2>
+      <div id="currentEntryBox"></div>
     </div>
-    <div class="reflection-box" id="reflection-overview"></div>
+
+    <div class="card">
+      <h2 class="section-title">Emotionswetter</h2>
+      <p class="field-label">Tipp auf einen Balken, um einen älteren Eintrag zu sehen.</p>
+      <div class="strip" id="strip"></div>
+      <div id="entriesList"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Dashboard</h2>
+      <p class="hint-msg" id="dashboardEmpty">Noch keine Einträge – deine Statistiken erscheinen, sobald du losgelegt hast.</p>
+      <div id="dashboardContent"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Gesamtbild</h2>
+      <p class="hint-msg" id="overviewHint">Ab 3 Einträgen verfügbar – schau dir an, ob sich Muster über die Zeit zeigen.</p>
+      <div class="btn-row">
+        <button class="ghost" id="overviewBtn">🌊 Abtauchen – über alle Einträge</button>
+      </div>
+      <div class="reflection-box" id="reflection-overview"></div>
+    </div>
+
+  </div>
+
+  <div id="newEntryView" style="display:none">
+
+    <div class="card">
+      <div class="btn-row">
+        <button class="ghost" id="cancelEntryBtn">← Zurück zur Übersicht</button>
+      </div>
+
+      <h2 class="section-title">Neuer Eintrag</h2>
+
+      <label class="field-label">Welche Gefühle sind gerade da?</label>
+      <div class="mood-circles" id="moodMainPills"></div>
+      <div class="mood-circle-caption" id="moodCaption"></div>
+      <div class="mood-refine" id="moodRefine"></div>
+
+      <div class="intensity-row">
+        <label class="field-label">Wie stark insgesamt?</label>
+        <div class="intensity-dots" id="intensityDots"></div>
+      </div>
+
+      <label class="field-label" for="entryText">Was ist passiert? Was geht dir durch den Kopf?</label>
+      <textarea id="entryText" placeholder="Schreib einfach los, so wie es kommt …"></textarea>
+
+      <p class="privacy-hint">🔒 Deine Einträge sind privat – andere Nutzer haben nie Zugriff darauf.</p>
+
+      <div class="btn-row">
+        <button class="primary" id="saveBtn" disabled>Speichern & abtauchen</button>
+      </div>
+    </div>
+
   </div>
 
   <div class="easter-toast" id="easterEggToast" aria-hidden="true"></div>

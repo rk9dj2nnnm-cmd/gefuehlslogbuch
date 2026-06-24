@@ -445,6 +445,17 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+/* ---------- Ansicht wechseln: Übersicht vs. fokussierter neuer Eintrag ---------- */
+function showOverview() {
+  $('overviewView').style.display = '';
+  $('newEntryView').style.display = 'none';
+}
+
+function showNewEntryView() {
+  $('overviewView').style.display = 'none';
+  $('newEntryView').style.display = '';
+}
+
 /* ---------- Eintrag speichern ---------- */
 async function saveEntry() {
   const text = $('entryText').value.trim();
@@ -471,6 +482,7 @@ async function saveEntry() {
   renderEntries();
   updateOverviewButton();
   renderDashboard();
+  showOverview();
   startReflection(data);
 }
 
@@ -574,6 +586,8 @@ async function init() {
   });
   $('saveBtn').addEventListener('click', saveEntry);
   $('overviewBtn').addEventListener('click', startOverviewReflection);
+  $('newEntryBtn').addEventListener('click', showNewEntryView);
+  $('cancelEntryBtn').addEventListener('click', showOverview);
 
   const main = document.querySelector('.wrap');
 
