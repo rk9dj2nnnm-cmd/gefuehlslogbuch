@@ -306,9 +306,7 @@ function renderEntries() {
     // Kein alter Eintrag aufgeklappt: aktuellen Eintrag normal zeigen.
     currentHeading.style.display = '';
     currentBox.style.display = '';
-    list.innerHTML = (entries.length > 0 && olderEntries.length === 0)
-      ? '<p class="empty-state">Noch keine älteren Einträge.</p>'
-      : '';
+    list.innerHTML = '';
     return;
   }
 
@@ -468,9 +466,26 @@ function showOverview() {
 
 function showNewEntryView() {
   openHistoryEntryId = null; // sonst könnte ein offener alter Eintrag nach dem Speichern den neuen verdecken
+  $('newEntryForm').style.display = '';
   $('overviewView').style.display = 'none';
   $('newEntryView').style.display = '';
   $('newEntryBtn').style.display = 'none';
+}
+
+// Bringt den aktuellen Eintrag (samt Reflexion) zurück an seinen Platz im Emotionswetter,
+// falls er gerade für die Reflexion in die Eintrags-Ansicht verschoben wurde.
+function returnCurrentEntrySection() {
+  const section = $('currentEntrySection');
+  const weatherCard = $('weatherCard');
+  if (section.parentElement !== weatherCard) {
+    weatherCard.insertBefore(section, $('entriesList'));
+  }
+}
+
+function backToOverviewFromEntryView() {
+  returnCurrentEntrySection();
+  $('newEntryForm').style.display = '';
+  showOverview();
 }
 
 /* ---------- Eintrag speichern ---------- */
@@ -499,7 +514,10 @@ async function saveEntry() {
   renderEntries();
   updateOverviewButton();
   renderDashboard();
-  showOverview();
+
+  // Reflexion direkt hier in der Eintrags-Ansicht zeigen, statt sofort zur Übersicht zu wechseln.
+  $('newEntryForm').style.display = 'none';
+  $('newEntryReflectionSlot').appendChild($('currentEntrySection'));
   startReflection(data);
 }
 
@@ -604,7 +622,7 @@ async function init() {
   $('saveBtn').addEventListener('click', saveEntry);
   $('overviewBtn').addEventListener('click', startOverviewReflection);
   $('newEntryBtn').addEventListener('click', showNewEntryView);
-  $('cancelEntryBtn').addEventListener('click', showOverview);
+  $('cancelEntryBtn').addEventListener('click', backToOverviewFromEntryView);
 
   const main = document.querySelector('.wrap');
 

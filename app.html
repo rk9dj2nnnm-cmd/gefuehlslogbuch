@@ -34,8 +34,10 @@
       <h2 class="section-title">Emotionswetter</h2>
       <p class="field-label">Tipp auf einen Balken, um einen älteren Eintrag zu sehen.</p>
       <div class="strip" id="strip"></div>
-      <p class="field-label" id="currentEntryHeading">Dein aktueller Eintrag</p>
-      <div id="currentEntryBox"></div>
+      <div id="currentEntrySection">
+        <p class="field-label" id="currentEntryHeading">Dein aktueller Eintrag</p>
+        <div id="currentEntryBox"></div>
+      </div>
       <div id="entriesList"></div>
     </div>
 
@@ -63,26 +65,30 @@
         <button class="ghost" id="cancelEntryBtn">← Zurück zur Übersicht</button>
       </div>
 
-      <h2 class="section-title">Neuer Eintrag</h2>
+      <div id="newEntryForm">
+        <h2 class="section-title">Neuer Eintrag</h2>
 
-      <label class="field-label">Welche Gefühle sind gerade da?</label>
-      <div class="mood-circles" id="moodMainPills"></div>
-      <div class="mood-circle-caption" id="moodCaption"></div>
-      <div class="mood-refine" id="moodRefine"></div>
+        <label class="field-label">Welche Gefühle sind gerade da?</label>
+        <div class="mood-circles" id="moodMainPills"></div>
+        <div class="mood-circle-caption" id="moodCaption"></div>
+        <div class="mood-refine" id="moodRefine"></div>
 
-      <div class="intensity-row">
-        <label class="field-label">Wie stark insgesamt?</label>
-        <div class="intensity-dots" id="intensityDots"></div>
+        <div class="intensity-row">
+          <label class="field-label">Wie stark insgesamt?</label>
+          <div class="intensity-dots" id="intensityDots"></div>
+        </div>
+
+        <label class="field-label" for="entryText">Was ist passiert? Was geht dir durch den Kopf?</label>
+        <textarea id="entryText" placeholder="Schreib einfach los, so wie es kommt …"></textarea>
+
+        <p class="privacy-hint">🔒 Deine Einträge sind privat – andere Nutzer haben nie Zugriff darauf.</p>
+
+        <div class="btn-row">
+          <button class="primary" id="saveBtn" disabled>Speichern & abtauchen</button>
+        </div>
       </div>
 
-      <label class="field-label" for="entryText">Was ist passiert? Was geht dir durch den Kopf?</label>
-      <textarea id="entryText" placeholder="Schreib einfach los, so wie es kommt …"></textarea>
-
-      <p class="privacy-hint">🔒 Deine Einträge sind privat – andere Nutzer haben nie Zugriff darauf.</p>
-
-      <div class="btn-row">
-        <button class="primary" id="saveBtn" disabled>Speichern & abtauchen</button>
-      </div>
+      <div id="newEntryReflectionSlot"></div>
     </div>
 
   </div>
