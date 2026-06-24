@@ -171,6 +171,19 @@ body {
   .sky { animation: none; }
 }
 
+.sky-new-entry-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  background: rgba(8, 20, 36, 0.45);
+  backdrop-filter: blur(3px);
+  border-color: rgba(237,234,227,0.3);
+}
+.sky-new-entry-btn:hover {
+  background: rgba(8, 20, 36, 0.65);
+}
+
 .blob {
   position: absolute;
   inset: -20%;
@@ -544,15 +557,6 @@ textarea::placeholder, input::placeholder { color: var(--ink-faint); }
   gap: 10px;
   margin-top: 22px;
   flex-wrap: wrap;
-}
-.btn-row-top {
-  margin-top: 0;
-  margin-bottom: 26px;
-  justify-content: center;
-}
-.btn-row-top button.primary {
-  padding: 13px 28px;
-  font-size: 0.95rem;
 }
 
 button.primary, button.ghost {
