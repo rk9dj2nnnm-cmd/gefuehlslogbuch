@@ -725,7 +725,11 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   flex-direction: column;
   gap: 8px;
 }
-.reflection-box:has(> .reflect-btn:only-child),
+.reflection-box:has(> .reflect-btn:only-child) {
+  margin-top: 14px;
+  padding-top: 0;
+  border-top: none;
+}
 .reflection-box:empty {
   margin-top: 0;
   padding-top: 0;
