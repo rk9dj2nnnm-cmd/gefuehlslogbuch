@@ -296,27 +296,39 @@ function renderCurrentEntry() {
 
 function renderEntries() {
   const list = $('entriesList');
+  const currentHeading = $('currentEntryHeading');
+  const currentBox = $('currentEntryBox');
   const olderEntries = entries.slice(0, -1); // alle außer dem aktuellsten Eintrag
-
-  if (entries.length === 0) {
-    // Der "Noch keine Einträge"-Hinweis steht schon oben beim aktuellen Eintrag.
-    list.innerHTML = '';
-    return;
-  }
-
-  if (olderEntries.length === 0) {
-    list.innerHTML = '<p class="empty-state">Noch keine älteren Einträge.</p>';
-    return;
-  }
-
   const open = olderEntries.find((e) => e.id === openHistoryEntryId);
 
   if (!open) {
-    list.innerHTML = '';
+    // Kein alter Eintrag aufgeklappt: aktuellen Eintrag normal zeigen.
+    currentHeading.style.display = '';
+    currentBox.style.display = '';
+    list.innerHTML = (entries.length > 0 && olderEntries.length === 0)
+      ? '<p class="empty-state">Noch keine älteren Einträge.</p>'
+      : '';
     return;
   }
 
+  // Ein alter Eintrag ist aufgeklappt: ersetzt den aktuellen Eintrag, statt zusätzlich daneben zu stehen.
+  currentHeading.style.display = 'none';
+  currentBox.style.display = 'none';
+
   list.innerHTML = '';
+  const backRow = document.createElement('div');
+  backRow.className = 'btn-row btn-row-back';
+  const backBtn = document.createElement('button');
+  backBtn.className = 'ghost';
+  backBtn.type = 'button';
+  backBtn.textContent = '← Zurück zum aktuellen Eintrag';
+  backBtn.addEventListener('click', () => {
+    openHistoryEntryId = null;
+    renderEntries();
+  });
+  backRow.appendChild(backBtn);
+  list.appendChild(backRow);
+
   const card = document.createElement('div');
   card.className = 'entry';
   card.id = 'entry-' + open.id;
@@ -465,6 +477,7 @@ function showOverview() {
 }
 
 function showNewEntryView() {
+  openHistoryEntryId = null; // sonst könnte ein offener alter Eintrag nach dem Speichern den neuen verdecken
   $('overviewView').style.display = 'none';
   $('newEntryView').style.display = '';
   $('newEntryBtn').style.display = 'none';
