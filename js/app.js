@@ -210,8 +210,8 @@ function formatDate(iso) {
 
 /* ---------- Emotionswetter-Streifen ---------- */
 function renderStrip() {
+  $('weatherCard').style.display = entries.length === 0 ? 'none' : '';
   const strip = $('strip');
-  strip.style.display = entries.length === 0 ? 'none' : '';
   strip.innerHTML = '';
   entries.forEach(e => {
     const chips = e.moods || [];
