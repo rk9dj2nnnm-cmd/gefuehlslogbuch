@@ -236,7 +236,9 @@ function renderStrip() {
 }
 
 function entryHeadHtml(e) {
-  const chips = e.moods || [];
+  // Nur Hauptgefühle anzeigen, Untergefühle bleiben gespeichert (für KI & Dashboard),
+  // werden aber nicht extra als Chips angezeigt, damit der Kopf nicht überladen wirkt.
+  const chips = (e.moods || []).filter((c) => MOODS.some((g) => g.label === c.label));
   const moodHtml = chips.map(c => `<span><span class="mood-dot" style="background:${c.color}"></span>${c.label}</span>`).join(' · ');
   return `
     <div class="entry-head">
@@ -300,7 +302,7 @@ function renderEntries() {
   const open = olderEntries.find((e) => e.id === openHistoryEntryId);
 
   if (!open) {
-    list.innerHTML = '<p class="empty-state">Tipp auf einen Balken oben, um einen älteren Eintrag zu sehen.</p>';
+    list.innerHTML = '';
     return;
   }
 
