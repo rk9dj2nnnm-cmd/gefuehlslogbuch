@@ -280,16 +280,13 @@ function isToday(iso) {
 
 function renderCurrentEntry() {
   const box = $('currentEntryBox');
-  const heading = $('currentEntryHeading');
   if (entries.length === 0) {
-    heading.textContent = 'Dein letzter Eintrag';
     box.innerHTML = '<p class="empty-state">Noch keine Einträge. Dein erster Eintrag erscheint hier, sobald du ihn speicherst.</p>';
     $('newEntryBtn').classList.add('hint-pulse');
     return;
   }
   const e = entries[entries.length - 1];
   const hasEntryToday = isToday(e.created_at);
-  heading.textContent = 'Dein letzter Eintrag';
   // In der Übersicht immer nur Rückblick, nie interaktiv – chatten geht nur direkt nach dem Speichern.
   box.innerHTML = historyEntryInnerHtml(e);
   $('newEntryBtn').classList.toggle('hint-pulse', !hasEntryToday);
@@ -297,14 +294,12 @@ function renderCurrentEntry() {
 
 function renderEntries() {
   const list = $('entriesList');
-  const currentHeading = $('currentEntryHeading');
   const currentBox = $('currentEntryBox');
   const olderEntries = entries.slice(0, -1); // alle außer dem aktuellsten Eintrag
   const open = olderEntries.find((e) => e.id === openHistoryEntryId);
 
   if (!open) {
     // Kein alter Eintrag aufgeklappt: aktuellen Eintrag normal zeigen.
-    currentHeading.style.display = '';
     currentBox.style.display = '';
     list.innerHTML = '';
     return;
@@ -312,7 +307,6 @@ function renderEntries() {
 
   // Ein alter Eintrag ist aufgeklappt: ersetzt den aktuellen Eintrag, statt zusätzlich daneben zu stehen.
   // Zurück geht über erneutes Antippen desselben oder eines anderen Balkens (z.B. des letzten).
-  currentHeading.style.display = 'none';
   currentBox.style.display = 'none';
 
   list.innerHTML = '';
