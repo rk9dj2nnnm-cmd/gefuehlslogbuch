@@ -220,6 +220,11 @@ body {
   color: rgba(237,234,227,0.78);
   margin-top: 2px;
 }
+.sky-hint {
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-top: 8px;
+}
 
 /* ---------- Cards ---------- */
 .card {
