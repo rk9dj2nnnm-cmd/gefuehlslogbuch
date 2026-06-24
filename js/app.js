@@ -224,7 +224,8 @@ function renderStrip() {
     bar.addEventListener('click', () => {
       const isLatest = entries.length > 0 && e.id === entries[entries.length - 1].id;
       if (isLatest) {
-        $('currentEntryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        openHistoryEntryId = null;
+        renderEntries();
         return;
       }
       openHistoryEntryId = openHistoryEntryId === e.id ? null : e.id;
@@ -312,22 +313,11 @@ function renderEntries() {
   }
 
   // Ein alter Eintrag ist aufgeklappt: ersetzt den aktuellen Eintrag, statt zusätzlich daneben zu stehen.
+  // Zurück geht über erneutes Antippen desselben oder eines anderen Balkens (z.B. des letzten).
   currentHeading.style.display = 'none';
   currentBox.style.display = 'none';
 
   list.innerHTML = '';
-  const backRow = document.createElement('div');
-  backRow.className = 'btn-row btn-row-back';
-  const backBtn = document.createElement('button');
-  backBtn.className = 'ghost';
-  backBtn.type = 'button';
-  backBtn.textContent = '← Zurück zum aktuellen Eintrag';
-  backBtn.addEventListener('click', () => {
-    openHistoryEntryId = null;
-    renderEntries();
-  });
-  backRow.appendChild(backBtn);
-  list.appendChild(backRow);
 
   const card = document.createElement('div');
   card.className = 'entry';
