@@ -818,6 +818,29 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   padding: 0 14px;
 }
 
+/* ---------- Reflexion im Rückblick: ruhiger Fließtext statt Chat-Bubbles ---------- */
+.reflection-summary {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(237,234,227,0.1);
+}
+.reflection-summary-label {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 8px;
+}
+.reflection-text {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+.reflection-text:last-child {
+  margin-bottom: 0;
+}
+
 .reflection-input-row {
   display: flex;
   gap: 8px;

@@ -260,16 +260,25 @@ function currentEntryInnerHtml(e) {
   `;
 }
 
-// Ältere Einträge: keine neue Reflexion mehr möglich, nur bestehender Verlauf lesbar
+// Ältere Einträge & Rückblick: keine neue Reflexion mehr möglich, nur die KI-Texte
+// als ruhiger Fließtext – kein Chat-Look, eigene Zwischenantworten werden nicht extra gezeigt.
 function historyEntryInnerHtml(e) {
   const convo = conversations[e.id];
   if (!convo) return entryHeadHtml(e);
 
-  const messagesHtml = convo.messages
-    .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
+  const modelMessages = convo.messages.filter((m) => m.role === 'model');
+  if (modelMessages.length === 0) return entryHeadHtml(e);
+
+  const textHtml = modelMessages
+    .map((m) => `<p class="reflection-text">${escapeHtml(m.text)}</p>`)
     .join('');
 
-  return entryHeadHtml(e) + `<div class="reflection-box active readonly">${messagesHtml}</div>`;
+  return entryHeadHtml(e) + `
+    <div class="reflection-summary">
+      <p class="reflection-summary-label">KI-Reflexion</p>
+      ${textHtml}
+    </div>
+  `;
 }
 
 function isToday(iso) {
