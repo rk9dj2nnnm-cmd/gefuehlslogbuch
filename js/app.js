@@ -282,14 +282,14 @@ function renderCurrentEntry() {
   const box = $('currentEntryBox');
   const heading = $('currentEntryHeading');
   if (entries.length === 0) {
-    heading.textContent = 'Dein aktueller Eintrag';
+    heading.textContent = 'Dein letzter Eintrag';
     box.innerHTML = '<p class="empty-state">Noch keine Einträge. Dein erster Eintrag erscheint hier, sobald du ihn speicherst.</p>';
     $('newEntryBtn').classList.add('hint-pulse');
     return;
   }
   const e = entries[entries.length - 1];
   const hasEntryToday = isToday(e.created_at);
-  heading.textContent = hasEntryToday ? 'Dein aktueller Eintrag' : 'Dein letzter Eintrag';
+  heading.textContent = 'Dein letzter Eintrag';
   // In der Übersicht immer nur Rückblick, nie interaktiv – chatten geht nur direkt nach dem Speichern.
   box.innerHTML = historyEntryInnerHtml(e);
   $('newEntryBtn').classList.toggle('hint-pulse', !hasEntryToday);
