@@ -290,8 +290,8 @@ function renderCurrentEntry() {
   const e = entries[entries.length - 1];
   const hasEntryToday = isToday(e.created_at);
   heading.textContent = hasEntryToday ? 'Dein aktueller Eintrag' : 'Dein letzter Eintrag';
-  box.innerHTML = currentEntryInnerHtml(e);
-  renderReflectionBox(e.id);
+  // In der Übersicht immer nur Rückblick, nie interaktiv – chatten geht nur direkt nach dem Speichern.
+  box.innerHTML = historyEntryInnerHtml(e);
   $('newEntryBtn').classList.toggle('hint-pulse', !hasEntryToday);
 }
 
@@ -467,24 +467,16 @@ function showOverview() {
 function showNewEntryView() {
   openHistoryEntryId = null; // sonst könnte ein offener alter Eintrag nach dem Speichern den neuen verdecken
   $('newEntryForm').style.display = '';
+  $('newEntryReflectionSlot').innerHTML = '';
   $('overviewView').style.display = 'none';
   $('newEntryView').style.display = '';
   $('newEntryBtn').style.display = 'none';
 }
 
-// Bringt den aktuellen Eintrag (samt Reflexion) zurück an seinen Platz im Emotionswetter,
-// falls er gerade für die Reflexion in die Eintrags-Ansicht verschoben wurde.
-function returnCurrentEntrySection() {
-  const section = $('currentEntrySection');
-  const weatherCard = $('weatherCard');
-  if (section.parentElement !== weatherCard) {
-    weatherCard.insertBefore(section, $('entriesList'));
-  }
-}
-
 function backToOverviewFromEntryView() {
-  returnCurrentEntrySection();
+  $('newEntryReflectionSlot').innerHTML = '';
   $('newEntryForm').style.display = '';
+  renderCurrentEntry(); // zeigt den fertigen Chatverlauf jetzt als Rückblick in der Übersicht
   showOverview();
 }
 
@@ -517,7 +509,7 @@ async function saveEntry() {
 
   // Reflexion direkt hier in der Eintrags-Ansicht zeigen, statt sofort zur Übersicht zu wechseln.
   $('newEntryForm').style.display = 'none';
-  $('newEntryReflectionSlot').appendChild($('currentEntrySection'));
+  $('newEntryReflectionSlot').innerHTML = currentEntryInnerHtml(data);
   startReflection(data);
 }
 
