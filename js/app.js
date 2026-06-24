@@ -449,11 +449,13 @@ function escapeHtml(str) {
 function showOverview() {
   $('overviewView').style.display = '';
   $('newEntryView').style.display = 'none';
+  $('newEntryBtn').style.display = '';
 }
 
 function showNewEntryView() {
   $('overviewView').style.display = 'none';
   $('newEntryView').style.display = '';
+  $('newEntryBtn').style.display = 'none';
 }
 
 /* ---------- Eintrag speichern ---------- */
