@@ -284,7 +284,7 @@ function renderCurrentEntry() {
   if (entries.length === 0) {
     heading.textContent = 'Dein aktueller Eintrag';
     box.innerHTML = '<p class="empty-state">Noch keine Einträge. Dein erster Eintrag erscheint hier, sobald du ihn speicherst.</p>';
-    $('newEntryHint').style.display = '';
+    $('newEntryBtn').classList.add('hint-pulse');
     return;
   }
   const e = entries[entries.length - 1];
@@ -292,7 +292,7 @@ function renderCurrentEntry() {
   heading.textContent = hasEntryToday ? 'Dein aktueller Eintrag' : 'Dein letzter Eintrag';
   box.innerHTML = currentEntryInnerHtml(e);
   renderReflectionBox(e.id);
-  $('newEntryHint').style.display = hasEntryToday ? 'none' : '';
+  $('newEntryBtn').classList.toggle('hint-pulse', !hasEntryToday);
 }
 
 function renderEntries() {
