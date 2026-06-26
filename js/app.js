@@ -600,21 +600,18 @@ function renderDashboard() {
     });
   });
 
-  const freqHtml = freq.slice(0, 5).map(([label, count]) => {
+  const subsByIndex = [];
+  const freqHtml = freq.slice(0, 5).map(([label, count], i) => {
     const node = MOODS.find((g) => g.label === label);
     const color = node ? node.color : '#888';
     const pct = Math.round((count / maxFreq) * 100);
     const subs = Object.entries(subCounts[label] || {}).sort((a, b) => b[1] - a[1]);
-    const tooltipHtml = subs.length ? `
-      <div class="dash-sub-tooltip">
-        ${subs.map(([n, c]) => `<div class="dash-sub-row"><span>${escapeHtml(n)}</span><span>${c}</span></div>`).join('')}
-      </div>` : '';
+    subsByIndex.push(subs);
     return `
-      <div class="dash-freq-row">
+      <div class="dash-freq-row" data-idx="${i}">
         <span class="dash-freq-label">${escapeHtml(label)}</span>
         <div class="dash-freq-bar"><div class="dash-freq-fill" style="width:${pct}%; background:${color}; --bar-color:${color};"></div></div>
         <span class="dash-freq-count">${count}</span>
-        ${tooltipHtml}
       </div>`;
   }).join('');
 
@@ -625,6 +622,25 @@ function renderDashboard() {
     </div>
     ${freqHtml ? `<div class="dash-section-label">Häufigste Gefühle</div><div class="dash-freq-list">${freqHtml}</div>` : ''}
   `;
+
+  const dashCard = $('dashboardCard');
+  let fixedTooltip = dashCard.querySelector('.dash-fixed-tooltip');
+  if (!fixedTooltip) {
+    fixedTooltip = document.createElement('div');
+    fixedTooltip.className = 'dash-fixed-tooltip';
+    dashCard.appendChild(fixedTooltip);
+  }
+  fixedTooltip.style.display = 'none';
+
+  content.querySelectorAll('[data-idx]').forEach(row => {
+    const subs = subsByIndex[parseInt(row.dataset.idx)] || [];
+    if (!subs.length) return;
+    row.addEventListener('mouseenter', () => {
+      fixedTooltip.innerHTML = subs.map(([n, c]) => `<div class="dash-sub-row"><span>${escapeHtml(n)}</span><span>${c}</span></div>`).join('');
+      fixedTooltip.style.display = 'block';
+    });
+    row.addEventListener('mouseleave', () => { fixedTooltip.style.display = 'none'; });
+  });
 }
 
 function updateOverviewButton() {
