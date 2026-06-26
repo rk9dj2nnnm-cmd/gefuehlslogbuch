@@ -607,6 +607,10 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   transition: opacity 0.15s, transform 0.15s;
 }
 .strip-bar:hover { opacity: 1; transform: translateY(-2px); }
+.strip-bar--active {
+  opacity: 1;
+  box-shadow: 0 0 8px var(--bar-color);
+}
 
 .easter-toast {
   position: fixed;
@@ -664,7 +668,8 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .dash-sub-tooltip {
   display: none;
   position: absolute;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: calc(100% + 8px);
   background: rgba(8, 20, 36, 0.82);
   border: 1px solid rgba(150, 195, 230, 0.15);

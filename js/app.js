@@ -210,21 +210,23 @@ function renderStrip() {
   strip.innerHTML = '';
   entries.forEach(e => {
     const chips = e.moods || [];
+    const color = chips.length ? chips[0].color : '#888';
     const bar = document.createElement('div');
-    bar.className = 'strip-bar';
+    bar.className = 'strip-bar' + (e.id === openHistoryEntryId ? ' strip-bar--active' : '');
     const h = 16 + (e.intensity || 3) * 8;
-    bar.style.height = h + 'px';
-    bar.style.background = chips.length ? chips[0].color : '#888';
+    bar.style.cssText = `height:${h}px; background:${color}; --bar-color:${color};`;
     bar.title = formatDate(e.created_at) + ' · ' + chips.map(c => c.label).join(', ');
     bar.addEventListener('click', () => {
       const isLatest = entries.length > 0 && e.id === entries[entries.length - 1].id;
       if (isLatest) {
         openHistoryEntryId = null;
         renderEntries();
+        renderStrip();
         return;
       }
       openHistoryEntryId = openHistoryEntryId === e.id ? null : e.id;
       renderEntries();
+      renderStrip();
       const target = document.getElementById('entry-' + e.id);
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
