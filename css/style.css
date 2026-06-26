@@ -595,7 +595,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   align-items: flex-end;
   gap: 5px;
   overflow-x: auto;
-  padding: 4px 2px 14px;
+  padding: 12px 12px 14px;
   margin-bottom: 14px;
   border-bottom: 1px solid rgba(237,234,227,0.1);
 }
