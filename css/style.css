@@ -698,7 +698,6 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   height: 8px;
   border-radius: 4px;
   background: rgba(237,234,227,0.08);
-  overflow: hidden;
 }
 .dash-freq-fill {
   height: 100%;

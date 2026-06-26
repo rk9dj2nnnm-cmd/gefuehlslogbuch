@@ -259,10 +259,9 @@ function currentEntryInnerHtml(e) {
 }
 
 // Ältere Einträge & Rückblick: vollständigen Chat anzeigen (User + KI).
-// Nur wenn history.length > 0, d.h. mindestens ein echter Gemini-Austausch stattgefunden hat.
 function historyEntryInnerHtml(e) {
   const convo = conversations[e.id];
-  if (!convo || convo.history.length === 0) return entryHeadHtml(e);
+  if (!convo || !convo.messages.some(m => m.role === 'model')) return entryHeadHtml(e);
 
   const chatHtml = convo.messages
     .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
@@ -383,10 +382,11 @@ async function startReflection(entry) {
 
   if (lastErr) {
     conversations[entry.id].messages.push({ role: 'model', text: 'Konnte gerade nicht abtauchen. Versuch es nochmal.' });
+  } else {
+    persistReflection(entry.id);
   }
   conversations[entry.id].loading = false;
   renderReflectionBox(entry.id);
-  persistReflection(entry.id);
 }
 
 async function persistReflection(entryId) {
@@ -459,10 +459,11 @@ async function continueReflection(entryId, userMessage) {
 
   if (lastErr) {
     convo.messages.push({ role: 'model', text: 'Antwort konnte nicht geladen werden.' });
+  } else if (entryId !== 'overview') {
+    persistReflection(entryId);
   }
   convo.loading = false;
   renderReflectionBox(entryId);
-  if (entryId !== 'overview') persistReflection(entryId);
 }
 
 function escapeHtml(str) {
