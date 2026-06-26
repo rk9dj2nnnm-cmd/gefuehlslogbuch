@@ -106,11 +106,6 @@ function renderMoodGroups() {
   refineEl.classList.toggle('open', activeGroups.length > 0);
 
   if (activeGroups.length > 0) {
-    const heading = document.createElement('div');
-    heading.className = 'refine-heading';
-    heading.textContent = 'Genauer? (optional)';
-    refineEl.appendChild(heading);
-
     activeGroups.forEach(group => {
       const row = document.createElement('div');
       row.className = 'refine-group';
@@ -364,24 +359,33 @@ async function startReflection(entry) {
   conversations[entry.id] = { messages: [], history: [], loading: true };
   renderReflectionBox(entry.id);
 
-  try {
-    const res = await fetch('/api/reflect', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ entry: { text: entry.text, moods: entry.moods, intensity: entry.intensity } })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Fehler');
-    conversations[entry.id].history = data.history;
-    conversations[entry.id].messages.push({ role: 'model', text: data.reply });
-  } catch (err) {
-    console.error(err);
-    conversations[entry.id].messages.push({ role: 'model', text: 'Konnte gerade nicht abtauchen. Versuch es nochmal.' });
-  } finally {
-    conversations[entry.id].loading = false;
-    renderReflectionBox(entry.id);
-    persistReflection(entry.id);
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 2000));
+    try {
+      const res = await fetch('/api/reflect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entry: { text: entry.text, moods: entry.moods, intensity: entry.intensity } })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Fehler');
+      conversations[entry.id].history = data.history;
+      conversations[entry.id].messages.push({ role: 'model', text: data.reply });
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      console.error(`Reflexion Versuch ${attempt + 1} fehlgeschlagen`, err);
+    }
   }
+
+  if (lastErr) {
+    conversations[entry.id].messages.push({ role: 'model', text: 'Konnte gerade nicht abtauchen. Versuch es nochmal.' });
+  }
+  conversations[entry.id].loading = false;
+  renderReflectionBox(entry.id);
+  persistReflection(entry.id);
 }
 
 async function persistReflection(entryId) {

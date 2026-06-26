@@ -416,11 +416,6 @@ label.field-label {
   margin-bottom: 22px;
 }
 
-.refine-heading {
-  font-size: 0.78rem;
-  color: var(--ink-faint);
-  margin: 6px 0 8px;
-}
 
 .refine-group {
   display: flex;
@@ -670,14 +665,16 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   display: none;
   position: absolute;
   right: 0;
-  top: calc(100% + 6px);
-  background: var(--bg-card-soft);
-  border: 1px solid rgba(237,234,227,0.12);
+  bottom: calc(100% + 8px);
+  background: rgba(8, 20, 36, 0.82);
+  border: 1px solid rgba(150, 195, 230, 0.15);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  padding: 10px 14px;
   min-width: 160px;
   z-index: 10;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(95,168,160,0.08);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
 }
 .dash-freq-row:hover .dash-sub-tooltip {
   display: block;
@@ -688,7 +685,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   gap: 16px;
   font-size: 0.8rem;
   color: var(--ink-soft);
-  padding: 2px 0;
+  padding: 3px 0;
 }
 .dash-freq-label {
   width: 92px;
