@@ -230,7 +230,7 @@ function renderStrip() {
       renderEntries();
       renderStrip();
       const target = document.getElementById('entry-' + e.id);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
     strip.appendChild(bar);
   });
@@ -612,11 +612,9 @@ function renderDashboard() {
     return `
       <div class="dash-freq-row">
         <span class="dash-freq-label">${escapeHtml(label)}</span>
-        <div class="dash-freq-bar">
-          <div class="dash-freq-fill" style="width:${pct}%; background:${color}; --bar-color:${color};"></div>
-          ${tooltipHtml}
-        </div>
+        <div class="dash-freq-bar"><div class="dash-freq-fill" style="width:${pct}%; background:${color}; --bar-color:${color};"></div></div>
         <span class="dash-freq-count">${count}</span>
+        ${tooltipHtml}
       </div>`;
   }).join('');
 
