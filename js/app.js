@@ -3,6 +3,7 @@ let selectedKeys = new Set(); // ausgewählte Grund- und/oder Unterkategorien
 let openHistoryEntryId = null; // welcher ältere Eintrag aktuell aufgeklappt ist (immer nur einer)
 let selectedIntensity = 3;
 let easterEggShown = false;
+let aiReflectionEnabled = localStorage.getItem('aiReflection') !== 'false';
 
 function checkEasterEgg(text) {
   if (easterEggShown) return;
@@ -172,6 +173,18 @@ function updateButtons() {
   const text = $('entryText').value.trim();
   const ready = selectedKeys.size > 0 && text.length > 0;
   $('saveBtn').disabled = !ready;
+  $('saveBtn').textContent = aiReflectionEnabled ? 'Speichern & abtauchen' : 'Speichern';
+}
+
+function syncAiToggle() {
+  const toggle = $('aiReflectionToggle');
+  toggle.checked = aiReflectionEnabled;
+  toggle.addEventListener('change', () => {
+    aiReflectionEnabled = toggle.checked;
+    localStorage.setItem('aiReflection', aiReflectionEnabled);
+    updateButtons();
+  });
+  updateButtons();
 }
 
 /* ---------- Speichern / Laden (Supabase, pro Nutzer durch RLS getrennt) ---------- */
@@ -526,6 +539,12 @@ async function saveEntry() {
   updateOverviewButton();
   renderDashboard();
 
+  if (!aiReflectionEnabled) {
+    $('newEntryReflectionSlot').innerHTML = '';
+    showOverview();
+    return;
+  }
+
   // Reflexion direkt hier in der Eintrags-Ansicht zeigen, statt sofort zur Übersicht zu wechseln.
   $('newEntryForm').style.display = 'none';
   $('newEntryReflectionSlot').innerHTML = currentEntryInnerHtml(data);
@@ -662,6 +681,8 @@ async function init() {
   renderEntries();
   updateOverviewButton();
   renderDashboard();
+
+  syncAiToggle();
 
   $('entryText').addEventListener('input', () => {
     updateButtons();
