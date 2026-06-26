@@ -3,7 +3,7 @@ let selectedKeys = new Set(); // ausgewählte Grund- und/oder Unterkategorien
 let openHistoryEntryId = null; // welcher ältere Eintrag aktuell aufgeklappt ist (immer nur einer)
 let selectedIntensity = 3;
 let easterEggShown = false;
-let aiReflectionEnabled = localStorage.getItem('aiReflection') !== 'false';
+let aiReflectionEnabled = localStorage.getItem('skipReflection') !== 'true';
 
 function checkEasterEgg(text) {
   if (easterEggShown) return;
@@ -178,10 +178,10 @@ function updateButtons() {
 
 function syncAiToggle() {
   const toggle = $('aiReflectionToggle');
-  toggle.checked = aiReflectionEnabled;
+  toggle.checked = !aiReflectionEnabled;
   toggle.addEventListener('change', () => {
-    aiReflectionEnabled = toggle.checked;
-    localStorage.setItem('aiReflection', aiReflectionEnabled);
+    aiReflectionEnabled = !toggle.checked;
+    localStorage.setItem('skipReflection', !aiReflectionEnabled);
     updateButtons();
   });
   updateButtons();
