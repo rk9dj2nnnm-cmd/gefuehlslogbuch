@@ -212,7 +212,9 @@ function renderStrip() {
     const chips = e.moods || [];
     const color = chips.length ? chips[0].color : '#888';
     const bar = document.createElement('div');
-    bar.className = 'strip-bar' + (e.id === openHistoryEntryId ? ' strip-bar--active' : '');
+    const isLatestEntry = entries.length > 0 && e.id === entries[entries.length - 1].id;
+    const isActive = e.id === openHistoryEntryId || (isLatestEntry && openHistoryEntryId === null);
+    bar.className = 'strip-bar' + (isActive ? ' strip-bar--active' : '');
     const h = 16 + (e.intensity || 3) * 8;
     bar.style.cssText = `height:${h}px; background:${color}; --bar-color:${color};`;
     bar.title = formatDate(e.created_at) + ' · ' + chips.map(c => c.label).join(', ');
@@ -610,9 +612,11 @@ function renderDashboard() {
     return `
       <div class="dash-freq-row">
         <span class="dash-freq-label">${escapeHtml(label)}</span>
-        <div class="dash-freq-bar"><div class="dash-freq-fill" style="width:${pct}%; background:${color}; --bar-color:${color};"></div></div>
+        <div class="dash-freq-bar">
+          <div class="dash-freq-fill" style="width:${pct}%; background:${color}; --bar-color:${color};"></div>
+          ${tooltipHtml}
+        </div>
         <span class="dash-freq-count">${count}</span>
-        ${tooltipHtml}
       </div>`;
   }).join('');
 
