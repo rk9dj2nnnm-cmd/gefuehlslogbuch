@@ -563,7 +563,7 @@ textarea::placeholder, input::placeholder { color: var(--ink-faint); }
   flex-wrap: wrap;
 }
 .btn-row-back {
-  margin-top: 22px;
+  margin-top: 16px;
   margin-bottom: 0;
 }
 

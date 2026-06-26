@@ -257,6 +257,9 @@ function currentEntryInnerHtml(e) {
     <div class="reflection-box" id="reflection-${e.id}">
       <button class="ghost reflect-btn" data-id="${e.id}">🌊 Abtauchen</button>
     </div>
+    <div class="btn-row btn-row-back">
+      <button class="ghost back-overview-btn">← Zurück zur Übersicht</button>
+    </div>
   `;
 }
 
@@ -321,7 +324,6 @@ function renderEntries() {
   list.innerHTML = '';
 
   const card = document.createElement('div');
-  card.className = 'entry';
   card.id = 'entry-' + open.id;
   card.innerHTML = historyEntryInnerHtml(open);
   list.appendChild(card);
@@ -622,6 +624,10 @@ async function init() {
   const main = document.querySelector('.wrap');
 
   main.addEventListener('click', (e) => {
+    if (e.target.closest('.back-overview-btn')) {
+      backToOverviewFromEntryView();
+      return;
+    }
     const reflectBtn = e.target.closest('.reflect-btn');
     if (reflectBtn) {
       if (reflectBtn.dataset.id === 'overview') {
