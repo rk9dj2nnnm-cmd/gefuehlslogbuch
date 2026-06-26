@@ -436,24 +436,33 @@ async function continueReflection(entryId, userMessage) {
   convo.loading = true;
   renderReflectionBox(entryId);
 
-  try {
-    const res = await fetch('/api/reflect', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ history: convo.history, message: userMessage })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Fehler');
-    convo.history = data.history;
-    convo.messages.push({ role: 'model', text: data.reply });
-  } catch (err) {
-    console.error(err);
-    convo.messages.push({ role: 'model', text: 'Antwort konnte nicht geladen werden.' });
-  } finally {
-    convo.loading = false;
-    renderReflectionBox(entryId);
-    if (entryId !== 'overview') persistReflection(entryId);
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 2000));
+    try {
+      const res = await fetch('/api/reflect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ history: convo.history, message: userMessage })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Fehler');
+      convo.history = data.history;
+      convo.messages.push({ role: 'model', text: data.reply });
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      console.error(`Fortsetzung Versuch ${attempt + 1} fehlgeschlagen`, err);
+    }
   }
+
+  if (lastErr) {
+    convo.messages.push({ role: 'model', text: 'Antwort konnte nicht geladen werden.' });
+  }
+  convo.loading = false;
+  renderReflectionBox(entryId);
+  if (entryId !== 'overview') persistReflection(entryId);
 }
 
 function escapeHtml(str) {
