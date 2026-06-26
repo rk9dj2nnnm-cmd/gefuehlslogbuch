@@ -659,10 +659,36 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 }
 .dash-freq-list { margin-bottom: 22px; }
 .dash-freq-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 8px;
+  cursor: default;
+}
+.dash-sub-tooltip {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--bg-card-soft);
+  border: 1px solid rgba(237,234,227,0.12);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  min-width: 160px;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.dash-freq-row:hover .dash-sub-tooltip {
+  display: block;
+}
+.dash-sub-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  padding: 2px 0;
 }
 .dash-freq-label {
   width: 92px;

@@ -263,23 +263,18 @@ function currentEntryInnerHtml(e) {
   `;
 }
 
-// Ältere Einträge & Rückblick: keine neue Reflexion mehr möglich, nur die KI-Texte
-// als ruhiger Fließtext – kein Chat-Look, eigene Zwischenantworten werden nicht extra gezeigt.
+// Ältere Einträge & Rückblick: vollständigen Chat anzeigen (User + KI).
 function historyEntryInnerHtml(e) {
   const convo = conversations[e.id];
-  if (!convo) return entryHeadHtml(e);
+  if (!convo || convo.messages.length === 0) return entryHeadHtml(e);
 
-  const modelMessages = convo.messages.filter((m) => m.role === 'model');
-  if (modelMessages.length === 0) return entryHeadHtml(e);
-
-  const textHtml = modelMessages
-    .map((m) => `<p class="reflection-text">${escapeHtml(m.text)}</p>`)
+  const chatHtml = convo.messages
+    .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
     .join('');
 
   return entryHeadHtml(e) + `
-    <div class="reflection-summary">
-      <p class="reflection-summary-label">KI-Reflexion</p>
-      ${textHtml}
+    <div class="reflection-box active">
+      ${chatHtml}
     </div>
   `;
 }
@@ -571,15 +566,36 @@ function renderDashboard() {
   const freq = moodFrequency();
   const maxFreq = freq.length ? freq[0][1] : 1;
 
+  const subCounts = {};
+  entries.forEach(e => {
+    const mainInEntry = (e.moods || []).filter(c => MOODS.some(g => g.label === c.label));
+    const subInEntry  = (e.moods || []).filter(c => !MOODS.some(g => g.label === c.label));
+    mainInEntry.forEach(main => {
+      const group = MOODS.find(g => g.label === main.label);
+      if (!group) return;
+      if (!subCounts[main.label]) subCounts[main.label] = {};
+      subInEntry.forEach(sub => {
+        if (group.children.some(c => c.label === sub.label))
+          subCounts[main.label][sub.label] = (subCounts[main.label][sub.label] || 0) + 1;
+      });
+    });
+  });
+
   const freqHtml = freq.slice(0, 5).map(([label, count]) => {
     const node = MOODS.find((g) => g.label === label);
     const color = node ? node.color : '#888';
     const pct = Math.round((count / maxFreq) * 100);
+    const subs = Object.entries(subCounts[label] || {}).sort((a, b) => b[1] - a[1]);
+    const tooltipHtml = subs.length ? `
+      <div class="dash-sub-tooltip">
+        ${subs.map(([n, c]) => `<div class="dash-sub-row"><span>${escapeHtml(n)}</span><span>${c}</span></div>`).join('')}
+      </div>` : '';
     return `
       <div class="dash-freq-row">
         <span class="dash-freq-label">${escapeHtml(label)}</span>
         <div class="dash-freq-bar"><div class="dash-freq-fill" style="width:${pct}%; background:${color};"></div></div>
         <span class="dash-freq-count">${count}</span>
+        ${tooltipHtml}
       </div>`;
   }).join('');
 
