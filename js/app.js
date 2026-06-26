@@ -598,7 +598,7 @@ function renderDashboard() {
     return `
       <div class="dash-freq-row">
         <span class="dash-freq-label">${escapeHtml(label)}</span>
-        <div class="dash-freq-bar"><div class="dash-freq-fill" style="width:${pct}%; background:${color};"></div></div>
+        <div class="dash-freq-bar"><div class="dash-freq-fill" style="width:${pct}%; background:${color}; --bar-color:${color};"></div></div>
         <span class="dash-freq-count">${count}</span>
         ${tooltipHtml}
       </div>`;
