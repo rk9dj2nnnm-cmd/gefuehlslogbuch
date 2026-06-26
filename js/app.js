@@ -259,9 +259,10 @@ function currentEntryInnerHtml(e) {
 }
 
 // Ältere Einträge & Rückblick: vollständigen Chat anzeigen (User + KI).
+// Nur wenn history.length > 0, d.h. mindestens ein echter Gemini-Austausch stattgefunden hat.
 function historyEntryInnerHtml(e) {
   const convo = conversations[e.id];
-  if (!convo || convo.messages.length === 0) return entryHeadHtml(e);
+  if (!convo || convo.history.length === 0) return entryHeadHtml(e);
 
   const chatHtml = convo.messages
     .map((m) => `<p class="reflection-msg ${m.role}">${escapeHtml(m.text)}</p>`)
