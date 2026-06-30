@@ -349,9 +349,94 @@
     margin-top: 30px;
     padding: 0 10px;
   }
+
+  /* ---------- Gate ---------- */
+  #gate-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  #gate-overlay.hidden { display: none; }
+  .gate-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .gate-title {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .gate-sub {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0 0 28px;
+    line-height: 1.5;
+  }
+  .gate-input {
+    width: 100%;
+    background: var(--bg-card-soft);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-md);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  .gate-input:focus { border-color: var(--accent); }
+  .gate-btn {
+    margin-top: 16px;
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .gate-btn:hover { background: var(--accent-dark); }
+  .gate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .gate-error {
+    margin-top: 12px;
+    font-size: 0.88rem;
+    color: #e07070;
+    min-height: 1.2em;
+  }
 </style>
 </head>
 <body>
+
+<div id="gate-overlay">
+  <div class="gate-card">
+    <p class="gate-title">Gefühlslogbuch</p>
+    <p class="gate-sub">Diese App ist gerade nur auf Einladung zugänglich.</p>
+    <input class="gate-input" id="gate-code" type="text" autocomplete="off" placeholder="CODE" maxlength="20" />
+    <button class="gate-btn" id="gate-btn">Weiter</button>
+    <p class="gate-error" id="gate-error"></p>
+  </div>
+</div>
 
 <div class="wrap">
 
@@ -770,6 +855,48 @@ Beratungsstelle zu wenden, anstatt weiter zu reflektieren.`;
   }
 
   init();
+
+  // Gate
+  (function() {
+    const overlay = document.getElementById('gate-overlay');
+    const input   = document.getElementById('gate-code');
+    const btn     = document.getElementById('gate-btn');
+    const err     = document.getElementById('gate-error');
+
+    if (localStorage.getItem('gefuehlslogbuch_gate') === 'passed') {
+      overlay.classList.add('hidden');
+      return;
+    }
+
+    async function tryCode() {
+      const code = input.value.trim();
+      if (!code) return;
+      btn.disabled = true;
+      err.textContent = '';
+      try {
+        const res  = await fetch('/api/check-access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code }),
+        });
+        const data = await res.json();
+        if (data.valid) {
+          localStorage.setItem('gefuehlslogbuch_gate', 'passed');
+          overlay.classList.add('hidden');
+        } else {
+          err.textContent = 'Falscher Code.';
+          input.select();
+        }
+      } catch {
+        err.textContent = 'Fehler – bitte nochmal versuchen.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    btn.addEventListener('click', tryCode);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') tryCode(); });
+  })();
 </script>
 </body>
 </html>
