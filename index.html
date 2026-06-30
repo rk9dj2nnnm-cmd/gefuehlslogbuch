@@ -15,19 +15,23 @@
 
 <div class="wrap">
 
-  <div class="card" id="accessGate">
-    <h2 class="section-title">Gefühlstaucher</h2>
-    <p class="field-label">Diese App ist gerade nur auf Einladung. Hast du einen Zugangscode bekommen?</p>
-    <form id="gateForm">
-      <div class="field-group">
-        <label class="field-label" for="gateCode">Zugangscode</label>
-        <input type="text" id="gateCode" autocomplete="off" required />
-      </div>
-      <div class="btn-row">
-        <button class="primary" type="submit">Weiter</button>
-      </div>
-      <div class="error-msg" id="gateError"></div>
-    </form>
+  <div id="accessGate" style="text-align:center;padding-top:48px;">
+    <h1 style="font-family:var(--serif);font-size:2rem;font-weight:500;margin:0 0 8px;color:var(--ink);">Gefühlstaucher</h1>
+    <p style="font-size:0.92rem;color:var(--ink-soft);margin:0 0 28px;line-height:1.5;">Diese App ist gerade nur auf Einladung zugänglich.</p>
+    <div class="card" style="text-align:left;max-width:360px;margin:0 auto;">
+      <h2 class="section-title">Zugangscode</h2>
+      <form id="gateForm">
+        <div class="field-group">
+          <label class="field-label" for="gateCode">Hast du einen Code bekommen?</label>
+          <input type="text" id="gateCode" autocomplete="off" required placeholder="Code eingeben"
+            style="text-transform:uppercase;letter-spacing:0.08em;font-size:1.25rem;font-weight:600;text-align:center;" />
+        </div>
+        <div class="btn-row" style="margin-top:4px;">
+          <button class="primary" type="submit" style="width:100%;border-radius:var(--radius-md);padding:13px;">Weiter</button>
+        </div>
+        <div class="error-msg" id="gateError"></div>
+      </form>
+    </div>
   </div>
 
   <div id="authSection" style="display:none">
